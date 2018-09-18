@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="Division_Layout">
+        <attr name="division_group" format="string"/>
+        <attr name="division_orientation" format="string">
+            <enum name="vertical" value="0"/>
+            <enum name="horizontal" value="1" />
+        </attr>
+        <attr name="division_value" format="float"/>
+    </declare-styleable>
+
+
+</resources>

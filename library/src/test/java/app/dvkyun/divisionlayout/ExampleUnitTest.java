@@ -1,4 +1,4 @@
-package app.dvkyun.ratio_layout;
+package app.dvkyun.divisionlayout;
 
 import org.junit.Test;
 

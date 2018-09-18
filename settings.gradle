@@ -1,1 +1,1 @@
-include ':app', ':ratio-layout'
+include ':app', ':library'
