@@ -12,16 +12,10 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:division_order="2"
-            app:division_orientation="vertical"
-            app:division_value="1"
             android:background="@color/colorAccent"/>
         <TextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:division_order="1"
-            app:division_orientation="vertical"
-            app:division_value="2"
             android:background="@color/colorPrimary"
             />
     </app.dvkyun.divisionlayout.DivisionLayout>
