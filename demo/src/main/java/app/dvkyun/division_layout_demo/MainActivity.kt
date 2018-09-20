@@ -1,4 +1,4 @@
-package app.dvkyun.ratio_layout_test
+package app.dvkyun.division_layout_demo
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle

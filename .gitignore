@@ -5,6 +5,8 @@
 .DS_Store
 /build
 /captures
+test/
+androidTest/
 .externalNativeBuild
 ### Android template
 # Built application files

@@ -7,7 +7,7 @@ apply plugin: 'kotlin-android-extensions'
 android {
     compileSdkVersion 28
     defaultConfig {
-        applicationId "app.dvkyun.ratio_layout_test"
+        applicationId "app.dvkyun.division_layout_demo"
         minSdkVersion 15
         targetSdkVersion 28
         versionCode 1

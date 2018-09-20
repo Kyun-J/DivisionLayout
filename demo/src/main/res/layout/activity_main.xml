@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <app.dvkyun.divisionlayout.DivisionLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:division_order="2"
+            app:division_orientation="vertical"
+            app:division_value="1"
+            android:background="@color/colorAccent"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:division_order="1"
+            app:division_orientation="vertical"
+            app:division_value="2"
+            android:background="@color/colorPrimary"
+            />
+    </app.dvkyun.divisionlayout.DivisionLayout>
+
+</android.support.constraint.ConstraintLayout>

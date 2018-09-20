@@ -1,4 +1,4 @@
-package app.dvkyun.ratio_layout_test
+package app.dvkyun.division_layout_demo
 
 import android.support.test.InstrumentationRegistry
 import android.support.test.runner.AndroidJUnit4
