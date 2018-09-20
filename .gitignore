@@ -3,20 +3,11 @@
 .idea/
 /local.properties
 .DS_Store
-/build
 /captures
 test/
 androidTest/
 .externalNativeBuild
 ### Android template
-# Built application files
-*.apk
-
-# Files for the ART/Dalvik VM
-*.dex
-
-# Java class files
-*.class
 
 # Generated files
 bin/
