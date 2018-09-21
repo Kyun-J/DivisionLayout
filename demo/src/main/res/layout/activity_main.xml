@@ -1,23 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <app.dvkyun.divisionlayout.DivisionLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        <TextView
+        <View
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:background="@color/colorAccent"
+            app:division_group="group1"
+            app:division_top="1"
+            app:division_height="1"
+            app:division_width="1" />
+        <View
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/colorAccent"/>
-        <TextView
+            android:background="@color/colorAccent"
+            app:division_group="group1"
+            app:division_top="1"
+            app:division_height="1"
+            app:division_width="1" />
+        <View
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/colorPrimary"
-            />
+            android:background="@color/colorAccent"
+            app:division_group="group1"
+            app:division_top="1"
+            app:division_height="1"
+            app:division_width="1"
+            app:division_bottom="1"/>
     </app.dvkyun.divisionlayout.DivisionLayout>
+
+    <!--
+    <attr name="division_group" format="string"/>
+        <attr name="division_width" format="float"/>
+        <attr name="division_height" format="float"/>
+        <attr name="division_left" format="float"/>
+        <attr name="division_right" format="float"/>
+        <attr name="division_top" format="float"/>
+        <attr name="division_bottom" format="float"/>
+        <attr name="division_virtical_order" format="integer"/>
+        <attr name="division_horizontal_order" format="integer"/>
+        -->
 
 </android.support.constraint.ConstraintLayout>
