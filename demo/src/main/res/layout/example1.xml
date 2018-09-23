@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<app.dvkyun.divisionlayout.DivisionLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Division_Layout"
+        android:background="#fffc"
+        android:gravity="center"
+        app:division_left="5"
+        app:division_width="10"
+        app:division_right="5"
+        app:division_top="1"
+        app:division_height="1"
+        app:division_bottom="0.5"/>
+</app.dvkyun.divisionlayout.DivisionLayout>

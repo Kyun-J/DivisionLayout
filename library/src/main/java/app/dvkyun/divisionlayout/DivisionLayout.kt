@@ -32,7 +32,6 @@ class DivisionLayout : ViewGroup {
                     try {
                         groupJson = JSONArray(it)
                     } catch (e : JSONException) {
-                        groupJson = JSONArray()
                         Log.w(TAG,e.message)
                     }
                 }
@@ -182,7 +181,7 @@ class DivisionLayout : ViewGroup {
     }
 
     private fun attrGroupSet() {
-        if(::groupJson.isLateinit) {
+        if(::groupJson.isInitialized) {
             for(i in 0 until groupJson.length()) {
                 try {
                     val g = groupJson.getJSONObject(i)
