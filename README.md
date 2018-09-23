@@ -5,7 +5,7 @@
 ## What is this?
 Division-layout is the layout that represents a view with a constant ratio, regardless of resolution.
 
-<img src=imgs/example1.png>
+<img src=imgs/example1.png width="384" height="640">
 
 This layout can be arranged by setting the proportions of left, top, right, bottom, width, and height.
 
@@ -31,14 +31,14 @@ This layout can be arranged by setting the proportions of left, top, right, bott
 </app.dvkyun.divisionlayout.DivisionLayout>
 ```
 The above xml is calculated by applying the ratio as shown in the figure below.
-<img src=imgs/example1.jpg>
+<img src=imgs/example1.jpg width="384" height="640">
 
 <hr/>
 
 This layout allows you to set the groups in which each view is to be included, allowing you to run the layout independently.
 You can also set the order of views within a group, and set the size of the group itself.
 
-<img src=imgs/example2.png>
+<img src=imgs/example2.png width="384" height="640">
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
