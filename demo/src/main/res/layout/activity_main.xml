@@ -6,44 +6,55 @@
 
     <app.dvkyun.divisionlayout.DivisionLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-        <View
-            android:layout_height="match_parent"
-            android:layout_width="match_parent"
-            android:background="@color/colorAccent"
-            app:division_group="group1"
-            app:division_top="1"
-            app:division_height="1"
-            app:division_width="1" />
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/colorAccent"
-            app:division_group="group1"
-            app:division_top="1"
-            app:division_height="1"
-            app:division_width="1" />
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/colorAccent"
-            app:division_group="group1"
-            app:division_top="1"
-            app:division_height="1"
+        android:layout_height="match_parent"
+        app:division_create_groups="[
+        {name:group1,left:1.5,width:1,right:1},
+        {name:group2,top:1,height:1,bottom:1},
+        {name:group3,top:0,height:0,bottom:0,left:50,width:200,right:100}
+        ]">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="test1"
+            android:gravity="center"
+            android:background="@color/colorPrimary"
+            app:division_virtical_group="group2"
+            app:division_horizontal_group="group1"
             app:division_width="1"
-            app:division_bottom="1"/>
+            app:division_height="1"
+            app:division_virtical_order="3"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="test2"
+            android:gravity="center"
+            android:background="@color/colorAccent"
+            app:division_virtical_group="group2"
+            app:division_width="1"
+            app:division_height="2" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="test3"
+            android:gravity="center"
+            android:background="@color/colorPrimaryDark"
+            app:division_horizontal_group="group1"
+            app:division_width="1"
+            app:division_height="2"
+            app:division_top="8"
+            app:division_bottom="3.4"
+            app:division_horizontal_order="1"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="test4"
+            android:gravity="center"
+            android:background="#3df344"
+            app:division_virtical_group="group2"
+            app:division_horizontal_group="group3"
+            app:division_virtical_order="1"
+            app:division_height="1"
+            app:division_width="1"/>
     </app.dvkyun.divisionlayout.DivisionLayout>
-
-    <!--
-    <attr name="division_group" format="string"/>
-        <attr name="division_width" format="float"/>
-        <attr name="division_height" format="float"/>
-        <attr name="division_left" format="float"/>
-        <attr name="division_right" format="float"/>
-        <attr name="division_top" format="float"/>
-        <attr name="division_bottom" format="float"/>
-        <attr name="division_virtical_order" format="integer"/>
-        <attr name="division_horizontal_order" format="integer"/>
-        -->
 
 </android.support.constraint.ConstraintLayout>

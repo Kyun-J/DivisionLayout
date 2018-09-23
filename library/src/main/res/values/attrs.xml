@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!--<declare-styleable name="DivisionLayout">-->
-        <!--<attr name="division_create_groups" format="string"/>-->
-    <!--</declare-styleable>-->
+    <declare-styleable name="DivisionLayout">
+        <attr name="division_create_groups" format="string"/>
+    </declare-styleable>
 
     <declare-styleable name="DivisionLayout_Layout">
-        <attr name="division_group" format="string"/>
         <attr name="division_width" format="float"/>
         <attr name="division_height" format="float"/>
         <attr name="division_left" format="float"/>
         <attr name="division_right" format="float"/>
         <attr name="division_top" format="float"/>
         <attr name="division_bottom" format="float"/>
+        <attr name="division_virtical_group" format="string"/>
+        <attr name="division_horizontal_group" format="string"/>
         <attr name="division_virtical_order" format="integer"/>
         <attr name="division_horizontal_order" format="integer"/>
-        <!--<attr name="division_enable" format="boolean"/>-->
     </declare-styleable>
 
 </resources>
