@@ -101,9 +101,9 @@ class DivisionLayout : ViewGroup {
         }
         defaultView[1].forEach {
             val c = getChildAt(it.cid)
-            val lp = getChildAt(it.cid).layoutParams as DivisionLayout.LayoutParams
+            val lp = c.layoutParams as DivisionLayout.LayoutParams
             lp.mWidth = f(parentWidth,lp.dWidth,lp.dLeft+lp.dWidth+lp.dRight)
-            if(lp.mWidth != -1)
+            if(lp.mHeight != -1)
                 c.measure(getChildMeasureSpec(widthMeasureSpec,0,lp.mWidth), getChildMeasureSpec(heightMeasureSpec,0,lp.mHeight))
         }
         groupList.forEach { _ , m ->
@@ -134,7 +134,7 @@ class DivisionLayout : ViewGroup {
                     c.measure(getChildMeasureSpec(widthMeasureSpec,0,lp.mWidth), getChildMeasureSpec(heightMeasureSpec,0,lp.mHeight))
             }
         }
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+        setMeasuredDimension(parentWidth,parentHeight)
     }
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
@@ -142,15 +142,18 @@ class DivisionLayout : ViewGroup {
             val c = getChildAt(it.cid)
             val lp = c.layoutParams as DivisionLayout.LayoutParams
             val m = lp.dTop + lp.dHeight + lp.dBottom
-            c.top = t + f(parentHeight,lp.dTop,m)
-            c.bottom = c.top + f(parentHeight,lp.dHeight,m)
+            lp.lt = t + f(parentHeight,lp.dTop,m)
+            lp.lb = lp.lt + f(parentHeight,lp.dHeight,m)
+            lp.lCheck = true
         }
         defaultView[1].forEach {
             val c = getChildAt(it.cid)
             val lp = c.layoutParams as DivisionLayout.LayoutParams
             val m = lp.dLeft + lp.dWidth + lp.dRight
-            c.left = l + f(parentWidth,lp.dLeft,m)
-            c.right = c.left + f(parentWidth,lp.dWidth,m)
+            lp.ll = l + f(parentWidth,lp.dLeft,m)
+            lp.lr = lp.ll + f(parentWidth,lp.dWidth,m)
+            if(lp.lCheck) c.layout(lp.ll,lp.lt,lp.lr,lp.lb)
+            else lp.lCheck = true
         }
         groupList.forEach { _ , m ->
             val vl = m[0]
@@ -161,9 +164,11 @@ class DivisionLayout : ViewGroup {
                 val v = vl[i] as DChild
                 val c = getChildAt(v.cid)
                 val lp = c.layoutParams as DivisionLayout.LayoutParams
-                c.top = lv + f(vgs.v, lp.dTop, vm)
-                c.bottom = c.top + f(vgs.v, lp.dHeight, vm)
-                lv = c.bottom + f(vgs.v, lp.dBottom, vm)
+                lp.lt = lv + f(vgs.v, lp.dTop, vm)
+                lp.lb = lp.lt + f(vgs.v, lp.dHeight, vm)
+                lv = lp.lb + f(vgs.v, lp.dBottom, vm)
+                if(lp.lCheck) c.layout(lp.ll,lp.lt,lp.lr,lp.lb)
+                else lp.lCheck = true
             }
             val hl = m[1]
             val hgs = hl[0] as DGroupSet
@@ -173,9 +178,11 @@ class DivisionLayout : ViewGroup {
                 val v = hl[i] as DChild
                 val c = getChildAt(v.cid)
                 val lp = c.layoutParams as DivisionLayout.LayoutParams
-                c.left = lh + f(hgs.v, lp.dLeft, hm)
-                c.right = c.left + f(hgs.v, lp.dWidth, hm)
-                lh = c.right + f(hgs.v, lp.dRight, hm)
+                lp.ll= lh + f(hgs.v, lp.dLeft, hm)
+                lp.lr = lp.ll + f(hgs.v, lp.dWidth, hm)
+                lh = lp.lr + f(hgs.v, lp.dRight, hm)
+                if(lp.lCheck) c.layout(lp.ll,lp.lt,lp.lr,lp.lb)
+                else lp.lCheck = true
             }
         }
     }
@@ -258,6 +265,11 @@ class DivisionLayout : ViewGroup {
 
         internal var mWidth = -1
         internal var mHeight = -1
+        internal var lCheck = false
+        internal var ll = 0
+        internal var lt = 0
+        internal var lr = 0
+        internal var lb = 0
 
         constructor(context: Context?,attrs: AttributeSet?) : super(context,attrs) {
             context?.let { c -> attrs?.let { a -> setAttrs(c,a) } }
