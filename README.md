@@ -31,6 +31,7 @@ This layout can be arranged by setting the proportions of left, top, right, bott
 </app.dvkyun.divisionlayout.DivisionLayout>
 ```
 The above xml is calculated by applying the ratio as shown in the figure below.
+
 <img src=imgs/example1.jpg width="384" height="640">
 
 <hr/>
@@ -119,7 +120,7 @@ allprojects {
 Add the dependency:
 ```Groovy
 dependencies {
-  compile 'com.github.Kyun-J:division-layout:0.02'
+  implementation 'com.github.Kyun-J:division-layout:0.02-1'
 }
 ```
 
