@@ -7,7 +7,7 @@
     app:division_create_groups="[
     {name:group1,left:1.5,width:1,right:1},
     {name:group2,top:1,height:1,bottom:1},
-    {name:group3,top:0,height:0,bottom:0,left:50,width:200,right:100}
+    {name:group3,left:50,width:200,right:100}
     ]">
     <TextView
         android:layout_width="wrap_content"
