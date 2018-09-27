@@ -3,53 +3,36 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    app:division_create_groups="[
-    {name:group1,left:1.5,width:1,right:1},
-    {name:group2,top:1,height:1,bottom:1},
-    {name:group3,left:50,width:200,right:100}
-    ]">
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    android:layout_height="match_parent">
+    <android.support.v7.widget.AppCompatTextView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
         android:text="test1"
         android:gravity="center"
         android:background="@color/colorPrimary"
         app:division_virtical_group="group2"
-        app:division_horizontal_group="group1"
         app:division_width="1"
         app:division_height="1"
-        app:division_virtical_order="3"/>
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        app:division_virtical_order="1"/>
+    <android.support.v7.widget.AppCompatTextView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:text="test2"
         android:gravity="center"
-        android:background="@color/colorAccent"
+        android:background="@color/colorPrimaryDark"
         app:division_virtical_group="group2"
         app:division_width="1"
-        app:division_height="2" />
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="test3"
-        android:gravity="center"
-        android:background="@color/colorPrimaryDark"
-        app:division_horizontal_group="group1"
-        app:division_width="1"
         app:division_height="2"
-        app:division_top="8"
-        app:division_bottom="3.4"
-        app:division_horizontal_order="1"/>
-    <TextView
-        android:layout_width="wrap_content"
+        app:division_virtical_order="3"/>
+    <android.support.v7.widget.AppCompatTextView
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="test4"
+        android:text="test3"
         android:gravity="center"
         android:background="#3df344"
         app:division_virtical_group="group2"
-        app:division_horizontal_group="group3"
-        app:division_virtical_order="1"
+        app:division_virtical_order="2"
+        app:division_top="3"
         app:division_height="1"
         app:division_width="1"/>
 </app.dvkyun.divisionlayout.DivisionLayout>
