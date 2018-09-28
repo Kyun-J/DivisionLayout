@@ -120,7 +120,7 @@ allprojects {
 Add the dependency:
 ```Groovy
 dependencies {
-  implementation 'com.github.Kyun-J:division-layout:0.02-1'
+  implementation 'com.github.Kyun-J:division-layout:0.03-b'
 }
 ```
 
