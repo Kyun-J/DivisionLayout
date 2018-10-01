@@ -3,8 +3,8 @@
 [![License](http://img.shields.io/badge/license-MIT-green.svg?style=flat)]()
 
 ## DivisionLayout은...
-서로 다른 해상도의 안드로이드 디바이스에서, 같은 비율로 화면 뷰를 구성하기 위해 만든 Layout 라이브러리입니다.
-top, height, bottem으로 구성된 세로 비율과 left, width, right로 구성된 가로 비율을 계산하여 뷰를 배치합니다.
+서로 다른 해상도의 안드로이드 디바이스에서, 같은 비율로 화면 뷰를 구성하기 위해 만든 Layout 라이브러리입니다.<br/>
+top, height, bottem으로 구성된 세로 비율과 left, width, right로 구성된 가로 비율을 계산하여 뷰를 배치합니다.<br/>
 뷰들의 세로, 가로 각각 group으로 묶어 각 그룹별로 묶어서 배치할 수 있습니다.
 
 ## What is this?
@@ -41,7 +41,7 @@ The above xml is calculated by applying the ratio as shown in the figure below.
 
 <hr/>
 
-This layout allows you to set the groups in which each view is to be included, allowing you to run the layout independently.
+This layout allows you to set the groups in which each view is to be included, allowing you to run the layout independently.<br/>
 You can also set the order of views within a group, and set the size of the group itself.
 
 <img src=imgs/example2.png width="384" height="640">
@@ -120,10 +120,9 @@ app:division_height=float
 app:division_bottom=float
 ```
 
-It can arrange the views in a row by specifying the horizontal and vertical groups respectively, and group views with the division_group attribute, place the order with the division_order attribute.
-
-The division_width and division_height properties apply only when layout_width and layout_height are 0dp, respectively.
-In the case of match_parent, all attributes such as the division_group are ignored and fill the parent layout.
+It can arrange the views in a row by specifying the horizontal and vertical groups respectively, and group views with the division_group attribute, place the order with the division_order attribute.<br/><br/>
+The division_width and division_height properties apply only when layout_width and layout_height are 0dp, respectively.<br/>
+In the case of match_parent, all attributes such as the division_group are ignored and fill the parent layout.<br/>
 If wrap_content is specified or a unit other than 0dp is specified, the size of the view is allocated as specified and the corresponding division_width or division_height attributes are ignored.
 
 ```xml
@@ -151,7 +150,7 @@ If wrap_content is specified or a unit other than 0dp is specified, the size of 
     app:division_right="0.8"/>
 ```
 
-division_group is created automatically when you use it, but you can create it separately with the division_create_groups property of the DivisionLayout and specify the size as a percentage.
+division_group is created automatically when you use it, but you can create it separately with the division_create_groups property of the DivisionLayout and specify the size as a percentage.<br/>
 division_create_groups receives a string of type JsonArray, and each division_group is created as a JsonObject.
 
 ```xml
