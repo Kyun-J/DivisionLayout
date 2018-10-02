@@ -64,8 +64,8 @@ You can also set the order of views within a group, and set the size of the grou
         android:text="test1"
         android:gravity="center"
         android:background="@color/colorPrimary"
-        app:division_virtical_group="group2"
-	app:division_virtical_order="3"
+        app:division_vertical_group="group2"
+	app:division_vertical_order="3"
 	app:division_height="1"
         app:division_horizontal_group="group1"
         app:division_width="1"
@@ -76,7 +76,7 @@ You can also set the order of views within a group, and set the size of the grou
         android:text="test2"
         android:gravity="center"
         android:background="@color/colorAccent"
-        app:division_virtical_group="group2"
+        app:division_vertical_group="group2"
         app:division_width="1"
         app:division_height="2" />
     <TextView
@@ -97,9 +97,9 @@ You can also set the order of views within a group, and set the size of the grou
         android:text="test4"
         android:gravity="center"
         android:background="#3df344"
-        app:division_virtical_group="group2"
+        app:division_vertical_group="group2"
         app:division_horizontal_group="group3"
-        app:division_virtical_order="1"
+        app:division_vertical_order="1"
         app:division_height="1"
         app:division_width="1"/>
 </app.dvkyun.divisionlayout.DivisionLayout>
