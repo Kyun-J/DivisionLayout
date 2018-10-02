@@ -1,6 +1,8 @@
 # division-layout
 
+[![](https://jitpack.io/v/Kyun-J/division-layout.svg)](https://jitpack.io/#Kyun-J/division-layout)
 [![License](http://img.shields.io/badge/license-MIT-green.svg?style=flat)]()
+
 
 ## DivisionLayout은...
 서로 다른 해상도의 안드로이드 디바이스에서, 같은 비율로 화면 뷰를 구성하기 위해 만든 Layout 라이브러리입니다.<br/>
