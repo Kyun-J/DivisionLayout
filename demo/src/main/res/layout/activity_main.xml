@@ -1,30 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<app.dvkyun.divisionlayout.DivisionLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_height="match_parent"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <TextView
-        android:layout_width="0dp"
-        android:layout_height="100dp"
-        android:text="text2"
-        android:gravity="center"
-        android:background="#3df344"
-        app:division_horizontal_group="g1"
-        app:division_horizontal_order="2"
-        app:division_left="0.5"
-        app:division_width="1"
-        app:division_right="0.5"/>
-    <TextView
-        android:layout_width="0dp"
-        android:layout_height="100dp"
-        android:text="text1"
-        android:gravity="center"
-        android:background="#3dcfee"
-        app:division_horizontal_group="g1"
-        app:division_horizontal_order="1"
-        app:division_left="1"
-        app:division_width="0.5"
-        app:division_right="0.8"/>
-</app.dvkyun.divisionlayout.DivisionLayout>
+    android:orientation="vertical">
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:text="test"
+        android:id="@+id/testbtn"/>
+
+    <app.dvkyun.divisionlayout.DivisionLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="10"
+        android:id="@+id/testdivision">
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="100dp"
+            android:text="text2"
+            android:gravity="center"
+            android:background="#3df344"
+            app:division_horizontal_group="g1"
+            app:division_horizontal_order="2"
+            app:division_left="0.5"
+            app:division_width="1"
+            app:division_right="0.5"/>
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="100dp"
+            android:text="text1"
+            android:gravity="center"
+            android:background="#3dcfee"
+            app:division_horizontal_group="g1"
+            app:division_horizontal_order="1"
+            app:division_left="1"
+            app:division_width="0.5"
+            app:division_right="0.8"/>
+    </app.dvkyun.divisionlayout.DivisionLayout>
+
+
+</LinearLayout>
 
