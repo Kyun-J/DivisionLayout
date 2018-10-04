@@ -248,7 +248,7 @@ allprojects {
 Add the dependency:
 ```Groovy
 dependencies {
-  implementation 'com.github.Kyun-J:division-layout:0.03-b'
+  implementation 'com.github.Kyun-J:division-layout:0.041'
 }
 ```
 
