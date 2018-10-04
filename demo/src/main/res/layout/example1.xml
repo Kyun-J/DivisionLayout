@@ -3,17 +3,28 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-
     <TextView
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:background="#fffc"
         android:gravity="center"
-        android:text="Division_Layout"
-        app:division_bottom="0.5"
+        android:text="test1"
+        app:division_vertical_group="group1"
+        app:division_top="1"
         app:division_height="1"
         app:division_left="5"
-        app:division_right="5"
-        app:division_top="1"
-        app:division_width="10" />
+        app:division_width="10"
+        app:division_right="5" />
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#fdfc"
+        android:gravity="center"
+        android:text="test2"
+        app:division_vertical_group="group1"
+        app:division_height="0.5"
+        app:division_bottom="1"
+        app:division_left="1"
+        app:division_width="2"
+        app:division_right="2" />
 </app.dvkyun.divisionlayout.DivisionLayout>
