@@ -200,6 +200,7 @@ class DivisionLayout : ViewGroup {
                 c.measure(lp.mws, lp.mhs)
                 lp.mw = c.measuredWidth
                 lp.mh = c.measuredHeight
+                lp.mc = false
             } else
                 lp.mc = true
         }
@@ -246,6 +247,7 @@ class DivisionLayout : ViewGroup {
                     c.measure(lp.mws, lp.mhs)
                     lp.mw = c.measuredWidth
                     lp.mh = c.measuredHeight
+                    lp.mc = false
                 } else
                     lp.mc = true
             }
@@ -285,7 +287,10 @@ class DivisionLayout : ViewGroup {
             val m = lp.divLeft + lp.divRight
             lp.ll = f(measuredWidth-lp.mw,lp.divLeft,m)
             lp.lr = lp.ll + lp.mw
-            if(lp.lc) c.layout(lp.ll,lp.lt,lp.lr,lp.lb)
+            if(lp.lc) {
+                c.layout(lp.ll,lp.lt,lp.lr,lp.lb)
+                lp.lc = false
+            }
             else lp.lc = true
         }
         for(g in groupList.values) {
@@ -299,7 +304,10 @@ class DivisionLayout : ViewGroup {
                 lp.lt = lv + f(vgs.v, lp.divTop, vm)
                 lp.lb = lp.lt + lp.mh
                 lv = lp.lb + f(vgs.v, lp.divBottom, vm)
-                if(lp.lc) c.layout(lp.ll,lp.lt,lp.lr,lp.lb)
+                if(lp.lc) {
+                    c.layout(lp.ll,lp.lt,lp.lr,lp.lb)
+                    lp.lc = false
+                }
                 else lp.lc = true
             }
             val hl = g[1]
@@ -312,7 +320,10 @@ class DivisionLayout : ViewGroup {
                 lp.ll= lh + f(hgs.v, lp.divLeft, hm)
                 lp.lr = lp.ll + lp.mw
                 lh = lp.lr + f(hgs.v, lp.divRight, hm)
-                if(lp.lc) c.layout(lp.ll,lp.lt,lp.lr,lp.lb)
+                if(lp.lc) {
+                    c.layout(lp.ll,lp.lt,lp.lr,lp.lb)
+                    lp.lc = false
+                }
                 else lp.lc = true
             }
         }
