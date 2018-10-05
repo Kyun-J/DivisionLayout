@@ -363,7 +363,7 @@ class DivisionLayout : ViewGroup {
                 val c = getChildAt(it)
                 val lp = c.layoutParams as DivisionLayout.LayoutParams
                 lp.mws = when (lp.width) {
-                    ViewGroup.LayoutParams.MATCH_PARENT -> getChildMeasureSpec(heightMeasureSpec,0,measuredWidth)
+                    ViewGroup.LayoutParams.MATCH_PARENT -> getChildMeasureSpec(widthMeasureSpec,0,measuredWidth)
                     0 -> getChildMeasureSpec(widthMeasureSpec, 0, f(g.hv, lp.divWidth, g.ha))
                     else -> getChildMeasureSpec(widthMeasureSpec, 0, lp.width)
                 }
@@ -395,7 +395,7 @@ class DivisionLayout : ViewGroup {
             val c = getChildAt(it)
             val lp = c.layoutParams as DivisionLayout.LayoutParams
             lp.mws = when (lp.width) {
-                ViewGroup.LayoutParams.MATCH_PARENT -> getChildMeasureSpec(heightMeasureSpec,0,measuredWidth)
+                ViewGroup.LayoutParams.MATCH_PARENT -> getChildMeasureSpec(widthMeasureSpec,0,measuredWidth)
                 0 -> getChildMeasureSpec(widthMeasureSpec, 0, f(measuredWidth, lp.divWidth, lp.divLeft + lp.divWidth + lp.divRight))
                 else -> getChildMeasureSpec(widthMeasureSpec, 0, lp.width)
             }
