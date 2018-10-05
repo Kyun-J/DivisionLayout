@@ -9,7 +9,6 @@
         android:background="#fffc"
         android:gravity="center"
         android:text="test1"
-        app:division_vertical_group="group1"
         app:division_top="1"
         app:division_height="1"
         app:division_left="5"

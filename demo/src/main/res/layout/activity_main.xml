@@ -13,32 +13,45 @@
         android:id="@+id/testbtn"/>
 
     <app.dvkyun.divisionlayout.DivisionLayout
-        android:layout_width="match_parent"
+        android:id="@+id/testdivision"
+        android:layout_width="wrap_content"
         android:layout_height="0dp"
-        android:layout_weight="10"
-        android:id="@+id/testdivision">
+        android:layout_weight="10">
+
         <TextView
             android:layout_width="0dp"
             android:layout_height="100dp"
-            android:text="text2"
-            android:gravity="center"
             android:background="#3df344"
+            android:gravity="center"
+            android:text="text2"
             app:division_horizontal_group="g1"
             app:division_horizontal_order="2"
             app:division_left="0.5"
-            app:division_width="1"
-            app:division_right="0.5"/>
+            app:division_right="0.5"
+            app:division_width="1" />
+
         <TextView
-            android:layout_width="0dp"
+            android:layout_width="20dp"
             android:layout_height="100dp"
-            android:text="text1"
+            android:background="@null"
             android:gravity="center"
-            android:background="#3dcfee"
+            android:text="text1"
+            app:division_horizontal_group="g1"
+            app:division_left="1"
+            app:division_right="0.8"
+            app:division_width="0.5" />
+
+        <TextView
+            android:layout_width="50dp"
+            android:layout_height="100dp"
+            android:background="@null"
+            android:gravity="center"
+            android:text="text3"
             app:division_horizontal_group="g1"
             app:division_horizontal_order="1"
             app:division_left="1"
-            app:division_width="0.5"
-            app:division_right="0.8"/>
+            app:division_right="0.8"
+            app:division_width="0.5" />
     </app.dvkyun.divisionlayout.DivisionLayout>
 
 
