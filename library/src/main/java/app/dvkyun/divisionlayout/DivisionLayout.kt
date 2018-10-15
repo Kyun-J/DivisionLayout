@@ -15,7 +15,7 @@ class DivisionLayout : ViewGroup {
     }
 
     private val groupList : HashMap<String,G> = HashMap()
-    private var groupJson : JSONArray = JSONArray()
+    private lateinit var groupJson : JSONArray
 
     private val defaultVerticalGroup : ArrayList<Int> = ArrayList()
     private val defaultHorizontalGroup : ArrayList<Int> = ArrayList()
@@ -30,12 +30,31 @@ class DivisionLayout : ViewGroup {
     constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
         context?.let { c ->
             attrs?.let { a ->
+                val st = R.styleable::class.java.getField("DivisionLayout").get(R.styleable::class.java) as IntArray
                 val ta = c.theme.obtainStyledAttributes(a,R.styleable.DivisionLayout,0,0)
-                ta.getString(R.styleable.DivisionLayout_division_create_groups)?.let {
-                    try {
-                        groupJson = JSONArray(it)
-                    } catch (e : JSONException) {
-                        throw(DivisionLayoutExecption("Illegal format of group-Json, please check division_create_groups.",e))
+                ta.getString(R.styleable.DivisionLayout_division_create_groups).let {
+                    when(it) {
+                        null -> {
+                            groupJson = JSONArray()
+                            groupJson
+                        }
+                        else ->
+                            try {
+                                groupJson = attrGroupJsonArray(it)
+                            } catch (e: JSONException) {
+                                throw(DivisionLayoutExecption("Illegal format of group-Json, please check division_create_groups.", e))
+                            }
+                    }
+                }
+                st.forEach { id ->
+                    if(id != R.styleable.DivisionLayout_division_create_groups) {
+                        ta.getString(id)?.let {
+                            try {
+                                groupJson.put(attrGroupJsonObject(it))
+                            } catch (e : JSONException) {
+                                throw(DivisionLayoutExecption("Illegal format of group-Json, please check division_create_groups.",e))
+                            }
+                        }
                     }
                 }
                 ta.recycle()
@@ -65,6 +84,7 @@ class DivisionLayout : ViewGroup {
         val ga = ArrayList<DivisionGroup>()
         for(g in groupList) {
             val dg = DivisionGroup(g.key)
+            dg.top is String
             dg.top = g.value.t
             dg.height = g.value.h
             dg.bottom = g.value.b
@@ -119,12 +139,12 @@ class DivisionLayout : ViewGroup {
             }
             val go = JSONObject()
             go.put("name",jsonObject.getString("name"))
-            if(!jsonObject.isNull("top")) go.put("top",jsonObject.getDouble("top"))
-            if(!jsonObject.isNull("height")) go.put("height",jsonObject.getDouble("height"))
-            if(!jsonObject.isNull("bottom")) go.put("bottom",jsonObject.getDouble("bottom"))
-            if(!jsonObject.isNull("left")) go.put("left",jsonObject.getDouble("left"))
-            if(!jsonObject.isNull("width")) go.put("width",jsonObject.getDouble("width"))
-            if(!jsonObject.isNull("right")) go.put("right",jsonObject.getDouble("right"))
+            if(!jsonObject.isNull("top")) go.put("top",jsonObject.get("top"))
+            if(!jsonObject.isNull("height")) go.put("height",jsonObject.get("height"))
+            if(!jsonObject.isNull("bottom")) go.put("bottom",jsonObject.get("bottom"))
+            if(!jsonObject.isNull("left")) go.put("left",jsonObject.get("left"))
+            if(!jsonObject.isNull("width")) go.put("width",jsonObject.get("width"))
+            if(!jsonObject.isNull("right")) go.put("right",jsonObject.get("right"))
             if(f != -1) groupJson.put(f,go)
             else groupJson.put(go)
             requestLayout()
@@ -259,7 +279,8 @@ class DivisionLayout : ViewGroup {
         for(g in groupList.values) g.reset()
         defaultVerticalGroup.clear()
         defaultHorizontalGroup.clear()
-        attrGroupSet()
+
+        GroupJsonSet()
 
         for(i in 0 until childCount) {
             val c = getChildAt(i)
@@ -283,7 +304,6 @@ class DivisionLayout : ViewGroup {
             makeGroup(lp.verticalGroup); makeGroup(lp.horizontalGroup)
             val vg = groupList[lp.verticalGroup]!!
             val hg = groupList[lp.horizontalGroup]!!
-            vg.init(); hg.init()
             if(lp.verticalGroup != LayoutParams.DEFAULT_GROUP) {
                 if(lp.verticalOrder == LayoutParams.DEFAULT_ORDER)
                     vg.verticalList.add(i)
@@ -408,22 +428,58 @@ class DivisionLayout : ViewGroup {
         }
     }
 
-    private fun attrGroupSet() {
+    private fun GroupJsonSet() {
+        val lateVerticalList = ArrayList<JSONObject>()
+        val lateHorizontalList = ArrayList<JSONObject>()
         for(i in 0 until groupJson.length()) {
             try {
                 val g = groupJson.getJSONObject(i)
                 val n = g.getString("name")
                 makeGroup(n)
                 val gr = groupList[n]!!
-                if(!g.isNull("top")) gr.t = g.getDouble("top").toFloat()
                 if(!g.isNull("height")) gr.h = g.getDouble("height").toFloat()
-                if(!g.isNull("bottom")) gr.b = g.getDouble("bottom").toFloat()
-                if(!g.isNull("left")) gr.l = g.getDouble("left").toFloat()
+                else gr.h = 0F
                 if(!g.isNull("width")) gr.w = g.getDouble("width").toFloat()
-                if(!g.isNull("right")) gr.r = g.getDouble("right").toFloat()
+                else gr.w = 0F
+                try {
+                    if(!g.isNull("top")) gr.t = g.getDouble("top").toFloat()
+                    if(!g.isNull("bottom")) gr.b = g.getDouble("bottom").toFloat()
+                    gr.vf = f(measuredHeight, gr.t, gr.t + gr.h + gr.b)
+                    gr.vl = f(measuredHeight, gr.b, gr.t + gr.h + gr.b)
+                    gr.vv = gr.vf - gr.vl
+                } catch (e : JSONException) {
+                    Log.d(TAG,e.message)
+                    lateVerticalList.add(g)
+                }
+                try {
+                    if(!g.isNull("left")) gr.l = g.getDouble("left").toFloat()
+                    if(!g.isNull("right")) gr.r = g.getDouble("right").toFloat()
+                    gr.hf = f(measuredWidth, gr.l, gr.l + gr.w + gr.r)
+                    gr.hl = f(measuredWidth, gr.r, gr.l + gr.w + gr.r)
+                    gr.hv = gr.hf - gr.hl
+                } catch (e : JSONException) {
+                    Log.d(TAG,e.message)
+                    lateHorizontalList.add(g)
+                }
             } catch (e : JSONException) {
-                Log.w(TAG,e.message)
+                throw(DivisionLayoutExecption("Illegal format of group-Json, please check division_create_groups.",e))
             }
+        }
+        lateVerticalList.forEach { lv ->
+            val g = groupList[lv.getString("name")]!!
+            groupList.forEach { gl ->
+                if(lv.getString("top").split(".")[0] == gl.key) {
+                    g.vf = gl.value.vf
+                }
+                if(lv.getString("bottom").split(".")[0] == gl.key) {
+                    g.vl = gl.value.vl
+                }
+            }
+            if(g.vf > 0 && g.vl > 0) g.vv = g.vf - g.vl
+            else if(g.vf > 0) {
+                g.vv = f(measuredHeight - g.vf, g.h, g.h + g.b)
+                gr.b = g.getDouble("bottom").toFloat()
+            } else if(g.vl > 0) g.vv = f(measuredHeight-g.vl,g.h,g.t + g.h)
         }
     }
 
@@ -433,6 +489,46 @@ class DivisionLayout : ViewGroup {
     private fun f(p : Int, v : Float, m : Float) : Int {
         return if(v == 0F || m == 0F) 0
         else (p/m*v).toInt()
+    }
+
+
+    private fun attrGroupJsonObject(string : String) : JSONObject {
+        var st = string
+        val result : JSONObject
+        st = st.trim()
+        if(st.first() != '{') st = "{".plus(st)
+        if(st.last() != '}') st += "}"
+        try {
+            result = JSONObject(st)
+            if(!result.isNull("l") && result.isNull("left")) result.put("left",result.get("l"))
+            if(!result.isNull("t") && result.isNull("top")) result.put("top",result.get("t"))
+            if(!result.isNull("r") && result.isNull("right")) result.put("rignt",result.get("r"))
+            if(!result.isNull("b") && result.isNull("bottom")) result.put("bottom",result.get("b"))
+            return result
+        } catch (e: JSONException) {
+            throw(DivisionLayoutExecption("Illegal format of group-Json, please check division_create_groups.", e))
+        }
+    }
+
+    private fun attrGroupJsonArray(string : String) : JSONArray {
+        var st = string
+        val result : JSONArray
+        st = st.trim()
+        if(st.first() != '[') st = "[".plus(st)
+        if(st.last() != ']') st += "]"
+        try {
+            result = JSONArray(st)
+            for(i in 0 until result.length()) {
+                val jo = result.getJSONObject(i)
+                if(!jo.isNull("l") && jo.isNull("left")) jo.put("left",jo.get("l"))
+                if(!jo.isNull("t") && jo.isNull("top")) jo.put("top",jo.get("t"))
+                if(!jo.isNull("r") && jo.isNull("right")) jo.put("rignt",jo.get("r"))
+                if(!jo.isNull("b") && jo.isNull("bottom")) jo.put("bottom",jo.get("b"))
+            }
+            return result
+        } catch (e: JSONException) {
+            throw(DivisionLayoutExecption("Illegal format of group-Json, please check division_create_groups.", e))
+        }
     }
 
     override fun generateLayoutParams(attrs: AttributeSet): DivisionLayout.LayoutParams {
@@ -506,26 +602,35 @@ class DivisionLayout : ViewGroup {
     }
 
     private inner class G {
-        private var isInit = false
         var va = 0F
         var vf = 0
         var vv = 0
-        var t = 0F
-        var b = 0F
-        var h = 1F
+        var vl = 0
+        var t : Any = 0F
+        var b : Any = 0F
+        var h : Any = 1F
         val verticalList = ArrayList<Int>()
         val verticalOrderList = HashMap<Int,ArrayList<Int>>()
         var ha = 0F
         var hf = 0
         var hv = 0
-        var l = 0F
-        var r = 0F
-        var w = 1F
+        var hl = 0
+        var l : Any = 0F
+        var r : Any = 0F
+        var w : Any = 1F
         val horizontalList = ArrayList<Int>()
         val horizontalOrderList = HashMap<Int,ArrayList<Int>>()
 
+        init {
+            vf = f(measuredHeight, t as Float, t as Float + h as Float + b as Float)
+            vl = f(measuredHeight, b as Float, t as Float + h as Float + b as Float)
+            vv = vf - vl
+            hf = f(measuredWidth, l as Float, l as Float + w as Float + r as Float)
+            hl = f(measuredWidth, r as Float, l as Float + w as Float + r as Float)
+            hv = hf - hl
+        }
+
         fun reset() {
-            isInit = false
             va = 0F
             vf = 0
             vv = 0
@@ -542,16 +647,6 @@ class DivisionLayout : ViewGroup {
             w = 1F
             horizontalList.clear()
             horizontalOrderList.values.forEach { it.clear() }
-        }
-
-        fun init() {
-            if(!isInit) {
-                vf = f(measuredHeight, t, t + h + b)
-                vv = f(measuredHeight, h, t + h + b)
-                hf = f(measuredWidth, l, l + w + r)
-                hv = f(measuredWidth, w, l + w + r)
-                isInit = true
-            }
         }
     }
 
