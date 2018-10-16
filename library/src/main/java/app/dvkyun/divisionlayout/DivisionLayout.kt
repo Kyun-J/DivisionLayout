@@ -3,6 +3,7 @@ package app.dvkyun.divisionlayout
 import android.content.Context
 import android.util.AttributeSet
 import android.util.Log
+import android.util.TypedValue
 import android.view.ViewGroup
 import org.json.JSONArray
 import org.json.JSONException
@@ -12,10 +13,13 @@ class DivisionLayout : ViewGroup {
 
     companion object {
         private const val TAG = "DivisionLayout"
+        private const val FIELD = "DivisionLayout_division_create_group_"
     }
 
     private val groupList : HashMap<String,G> = HashMap()
     private lateinit var groupJson : JSONArray
+    private val lateVerticalGroupJson : ArrayList<String> = ArrayList()
+    private val lateHorizontalGroupJson : ArrayList<String> = ArrayList()
 
     private val defaultVerticalGroup : ArrayList<Int> = ArrayList()
     private val defaultHorizontalGroup : ArrayList<Int> = ArrayList()
@@ -30,7 +34,7 @@ class DivisionLayout : ViewGroup {
     constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
         context?.let { c ->
             attrs?.let { a ->
-                val st = R.styleable::class.java.getField("DivisionLayout").get(R.styleable::class.java) as IntArray
+                val r = R.styleable::class.java
                 val ta = c.theme.obtainStyledAttributes(a,R.styleable.DivisionLayout,0,0)
                 ta.getString(R.styleable.DivisionLayout_division_create_groups).let {
                     when(it) {
@@ -42,18 +46,16 @@ class DivisionLayout : ViewGroup {
                             try {
                                 groupJson = attrGroupJsonArray(it)
                             } catch (e: JSONException) {
-                                throw(DivisionLayoutExecption("Illegal format of group-Json, please check division_create_groups.", e))
+                                throw(DivisionLayoutExecption(DivisionLayoutExecption.E1, e))
                             }
                     }
                 }
-                st.forEach { id ->
-                    if(id != R.styleable.DivisionLayout_division_create_groups) {
-                        ta.getString(id)?.let {
-                            try {
-                                groupJson.put(attrGroupJsonObject(it))
-                            } catch (e : JSONException) {
-                                throw(DivisionLayoutExecption("Illegal format of group-Json, please check division_create_groups.",e))
-                            }
+                for(i in 1 .. 20) {
+                    ta.getString(r.getField(FIELD.plus(i)).getInt(R.styleable::class.java))?.let {
+                        try {
+                            groupJson.put(attrGroupJsonObject(it))
+                        } catch (e : JSONException) {
+                            throw(DivisionLayoutExecption(DivisionLayoutExecption.E1,e))
                         }
                     }
                 }
@@ -63,7 +65,7 @@ class DivisionLayout : ViewGroup {
     }
 
     //return grouplist by JSONArray
-    fun getGroupsByJSON() : JSONArray {
+    fun getGroupsByJson() : JSONArray {
         val gl = JSONArray()
         for(g in groupList) {
             val go = JSONObject()
@@ -122,7 +124,7 @@ class DivisionLayout : ViewGroup {
             groupJson = gl
             requestLayout()
         } catch (e : JSONException) {
-            throw(DivisionLayoutExecption("JSON error. Please contact github issue",e))
+            throw(DivisionLayoutExecption(DivisionLayoutExecption.E2,e))
         }
     }
 
@@ -149,7 +151,7 @@ class DivisionLayout : ViewGroup {
             else groupJson.put(go)
             requestLayout()
         } catch (e : JSONException) {
-            throw(DivisionLayoutExecption("Illegal format of group-Json, please check inserted JSONObject.",e))
+            throw(DivisionLayoutExecption(DivisionLayoutExecption.E3,e))
         }
     }
 
@@ -176,7 +178,7 @@ class DivisionLayout : ViewGroup {
             else groupJson.put(go)
             requestLayout()
         } catch (e : JSONException) {
-            throw(DivisionLayoutExecption("JSON error. Please contact github issue",e))
+            throw(DivisionLayoutExecption(DivisionLayoutExecption.E2,e))
         }
     }
 
@@ -280,7 +282,7 @@ class DivisionLayout : ViewGroup {
         defaultVerticalGroup.clear()
         defaultHorizontalGroup.clear()
 
-        GroupJsonSet()
+        groupJsonSet()
 
         for(i in 0 until childCount) {
             val c = getChildAt(i)
@@ -351,14 +353,14 @@ class DivisionLayout : ViewGroup {
         for (g in groupList.values) {
             for(l in g.verticalOrderList) {
                 if(l.key-1 > g.verticalList.size)
-                    throw(DivisionLayoutExecption("Order can not be greater than the number of views in group. Also, please arrange the order starting from 1"))
+                    throw(DivisionLayoutExecption(DivisionLayoutExecption.E4))
                 l.value.forEach {
                     g.verticalList.add(l.key -1,it)
                 }
             }
             for(l in g.horizontalOrderList) {
                 if(l.key-1 > g.horizontalList.size)
-                    throw(DivisionLayoutExecption("Order can not be greater than the number of views in group. Also, please arrange the order starting from 1"))
+                    throw(DivisionLayoutExecption(DivisionLayoutExecption.E4))
                 l.value.forEach {
                     g.horizontalList.add(l.key-1,it)
                 }
@@ -428,85 +430,305 @@ class DivisionLayout : ViewGroup {
         }
     }
 
-    private fun GroupJsonSet() {
-        val lateVerticalList = ArrayList<JSONObject>()
-        val lateHorizontalList = ArrayList<JSONObject>()
+    private fun groupJsonSet() {
+        lateVerticalGroupJson.clear()
+        lateHorizontalGroupJson.clear()
         for(i in 0 until groupJson.length()) {
             try {
                 val g = groupJson.getJSONObject(i)
                 val n = g.getString("name")
                 makeGroup(n)
                 val gr = groupList[n]!!
-                if(!g.isNull("height")) gr.h = g.getDouble("height").toFloat()
-                else gr.h = 0F
-                if(!g.isNull("width")) gr.w = g.getDouble("width").toFloat()
-                else gr.w = 0F
-                try {
-                    if(!g.isNull("top")) gr.t = g.getDouble("top").toFloat()
-                    if(!g.isNull("bottom")) gr.b = g.getDouble("bottom").toFloat()
-                    gr.vf = f(measuredHeight, gr.t, gr.t + gr.h + gr.b)
-                    gr.vl = f(measuredHeight, gr.b, gr.t + gr.h + gr.b)
-                    gr.vv = gr.vf - gr.vl
-                } catch (e : JSONException) {
-                    Log.d(TAG,e.message)
-                    lateVerticalList.add(g)
+                gr.onJson()
+                gr.h = g.get("height")
+                gr.w = g.get("width")
+                if(!g.isNull("top")) gr.t = g.get("top")
+                if(!g.isNull("bottom")) gr.b = g.get("bottom")
+                if(!g.isNull("left")) gr.l = g.get("left")
+                if(!g.isNull("right")) gr.r = g.get("right")
+
+                if(gr.h is String)
+                    gr.vu = stringToPx(gr.h as String)
+                else if (gr.h !is Number)
+                    throw DivisionLayoutExecption(DivisionLayoutExecption.E12)
+                if(gr.w is String)
+                    gr.hu = stringToPx(gr.w as String)
+                else if (gr.w !is Number)
+                    throw DivisionLayoutExecption(DivisionLayoutExecption.E12)
+
+                if(gr.t is String || gr.b is String) {
+                    var catch = false
+                    if(gr.t is String) {
+                        try {
+                            gr.vf = stringToPx(gr.t as String)
+                            if(gr.b is Number) {
+                                if(gr.vu == -1) {
+                                    gr.vv = f(measuredHeight - gr.vf, anyToFloat(gr.h), anyToFloat(gr.h) + anyToFloat(gr.b))
+                                    gr.vl = gr.vf + gr.vv
+                                } else {
+                                    gr.vv = gr.vu
+                                    gr.vl = gr.vv + gr.vf
+                                }
+                            }
+                        } catch (e : DivisionLayoutExecption) {
+                            catch = true
+                        }
+                    }
+                    if(gr.b is String) {
+                        try {
+                            val l = stringToPx(gr.b as String)
+                            gr.vl = measuredHeight - l
+                            if(gr.vf != -1) {
+                                if(gr.vu == -1) {
+                                    gr.vv = gr.vl - gr.vf
+                                } else {
+                                    gr.vv = gr.vu
+                                    val a = (measuredHeight - gr.vv - gr.vf - l)/2
+                                    gr.vf += a
+                                    gr.vl -= a
+                                }
+                            } else if(gr.t is Number) {
+                                if(gr.vu == -1) {
+                                    gr.vv = f(gr.vl, anyToFloat(gr.h), anyToFloat(gr.h) + anyToFloat(gr.t))
+                                    gr.vf = gr.vl - gr.vv
+                                } else {
+                                    gr.vv = gr.vu
+                                    gr.vf = gr.vl - gr.vv
+                                }
+                            }
+                        } catch (e : DivisionLayoutExecption) {
+                            catch = true
+                        }
+                    }
+                    if(catch) lateVerticalGroupJson.add(n)
                 }
-                try {
-                    if(!g.isNull("left")) gr.l = g.getDouble("left").toFloat()
-                    if(!g.isNull("right")) gr.r = g.getDouble("right").toFloat()
-                    gr.hf = f(measuredWidth, gr.l, gr.l + gr.w + gr.r)
-                    gr.hl = f(measuredWidth, gr.r, gr.l + gr.w + gr.r)
-                    gr.hv = gr.hf - gr.hl
-                } catch (e : JSONException) {
-                    Log.d(TAG,e.message)
-                    lateHorizontalList.add(g)
+                else if(gr.t is Number && gr.b is Number) {
+                    if(gr.vu == -1) {
+                        gr.vf = f(measuredHeight, anyToFloat(gr.t), anyToFloat(gr.t) + anyToFloat(gr.h) + anyToFloat(gr.b))
+                        gr.vl = measuredHeight - f(measuredHeight, anyToFloat(gr.b), anyToFloat(gr.t) + anyToFloat(gr.h) + anyToFloat(gr.b))
+                        gr.vv = gr.vl - gr.vf
+                    } else {
+                        gr.vv = gr.vu
+                        gr.vf = f(measuredHeight - gr.vv, anyToFloat(gr.t), anyToFloat(gr.t) + anyToFloat(gr.b))
+                        gr.vl = gr.vv + gr.vf
+                    }
+                } else
+                    throw (DivisionLayoutExecption(DivisionLayoutExecption.E5))
+
+                if(gr.l is String || gr.r is String) {
+                    var catch = false
+                    if(gr.l is String) {
+                        try {
+                            gr.hf = stringToPx(gr.l as String)
+                            if(gr.r is Number) {
+                                if(gr.hu == -1) {
+                                    gr.hv = f(measuredWidth - gr.hf, anyToFloat(gr.w), anyToFloat(gr.w) + anyToFloat(gr.r))
+                                    gr.hl = gr.hf + gr.hv
+                                } else {
+                                    gr.hv = gr.hu
+                                    gr.hl = gr.hv + gr.hf
+                                }
+                            }
+                        } catch (e : DivisionLayoutExecption) {
+                            catch = true
+                        }
+                    }
+                    if(gr.r is String) {
+                        try {
+                            val l = stringToPx(gr.r as String)
+                            gr.hl = measuredWidth - l
+                            if(gr.hf != -1) {
+                                if(gr.hu == -1) {
+                                    gr.hv = gr.hl - gr.hf
+                                } else {
+                                    gr.hv = gr.hu
+                                    val a = (measuredWidth - gr.hv - gr.hf - l)/2
+                                    gr.hf += a
+                                    gr.hl -= a
+                                }
+                            } else if(gr.l is Number) {
+                                if(gr.hu == -1) {
+                                    gr.hv = f(gr.hl, anyToFloat(gr.h), anyToFloat(gr.w) + anyToFloat(gr.l))
+                                    gr.hf = gr.hl - gr.hv
+                                } else {
+                                    gr.hv = gr.vu
+                                    gr.hf = gr.hv - gr.hl
+                                }
+                            }
+                        } catch (e : DivisionLayoutExecption) {
+                            catch = true
+                        }
+                    }
+                    if(catch) lateHorizontalGroupJson.add(n)
                 }
+                else if(gr.l is Number && gr.r is Number) {
+                    if(gr.hu == -1) {
+                        gr.hf = f(measuredWidth, anyToFloat(gr.l), anyToFloat(gr.l) + anyToFloat(gr.w) + anyToFloat(gr.r))
+                        gr.hl = measuredWidth - f(measuredWidth, anyToFloat(gr.r), anyToFloat(gr.l) + anyToFloat(gr.w) + anyToFloat(gr.r))
+                        gr.hv = gr.hl - gr.hf
+                    } else {
+                        gr.hv = gr.hu
+                        gr.hf = f(measuredWidth - gr.hv, anyToFloat(gr.l), anyToFloat(gr.l) + anyToFloat(gr.r))
+                        gr.hl = gr.hv + gr.hf
+                    }
+                } else
+                    throw (DivisionLayoutExecption(DivisionLayoutExecption.E5))
             } catch (e : JSONException) {
-                throw(DivisionLayoutExecption("Illegal format of group-Json, please check division_create_groups.",e))
+                throw(DivisionLayoutExecption(DivisionLayoutExecption.E1,e))
             }
         }
-        lateVerticalList.forEach { lv ->
-            val g = groupList[lv.getString("name")]!!
-            groupList.forEach { gl ->
-                if(lv.getString("top").split(".")[0] == gl.key) {
-                    g.vf = gl.value.vf
-                }
-                if(lv.getString("bottom").split(".")[0] == gl.key) {
-                    g.vl = gl.value.vl
-                }
+        lateVerticalGroupJson.forEach { n ->
+            val g = groupList[n]!!
+            if(g.t is String && g.vf == -1) {
+                val t = (g.t as String).split(".")
+                if(t[0] == n)
+                    throw ((DivisionLayoutExecption(DivisionLayoutExecption.E8)))
+                if(t.size != 2)
+                    throw (DivisionLayoutExecption(DivisionLayoutExecption.E13))
+                val gl = groupList[t[0]]
+                if(gl == null)
+                    throw(DivisionLayoutExecption(DivisionLayoutExecption.E10))
+                else if(gl.vf == -1 || gl.vl == -1)
+                    throw ((DivisionLayoutExecption(DivisionLayoutExecption.E9)))
+                else if(t[1] == "t" || t[1] == "top")
+                    g.vf = gl.vf
+                else if(t[1] == "b" || t[1] == "bottom")
+                    g.vf = gl.vl
+                else
+                    throw (DivisionLayoutExecption(DivisionLayoutExecption.E6))
             }
-            if(g.vf > 0 && g.vl > 0) g.vv = g.vf - g.vl
-            else if(g.vf > 0) {
-                g.vv = f(measuredHeight - g.vf, g.h, g.h + g.b)
-                gr.b = g.getDouble("bottom").toFloat()
-            } else if(g.vl > 0) g.vv = f(measuredHeight-g.vl,g.h,g.t + g.h)
+            if(g.b is String && g.vl == -1) {
+                val b = (g.b as String).split(".")
+                if(b[0] == n)
+                    throw ((DivisionLayoutExecption(DivisionLayoutExecption.E8)))
+                if(b.size != 2)
+                    throw (DivisionLayoutExecption(DivisionLayoutExecption.E13))
+                val gl = groupList[b[0]]
+                if(gl == null)
+                    throw(DivisionLayoutExecption(DivisionLayoutExecption.E10))
+                else if(gl.vf == -1 || gl.vl == -1)
+                    throw ((DivisionLayoutExecption(DivisionLayoutExecption.E9)))
+                else if(b[1] == "t" || b[1] == "top")
+                    g.vl = gl.vf
+                else if(b[1] == "b" || b[1] == "bottom")
+                    g.vl = gl.vl
+                else
+                    throw (DivisionLayoutExecption(DivisionLayoutExecption.E6))
+            }
+            if(g.vu == -1) {
+                if (g.t is String && g.b is String) g.vv = g.vl - g.vf
+                else if (g.t is String && g.b is Number) {
+                    g.vv = f(measuredHeight - g.vf, anyToFloat(g.h), anyToFloat(g.h) + anyToFloat(g.b))
+                    g.vl =  g.vv + g.vf
+                } else if (g.b is String && g.t is Number) {
+                    g.vv = f(g.vl, anyToFloat(g.h), anyToFloat(g.h) + anyToFloat(g.t))
+                    g.vf = g.vl - g.vv
+                }
+            } else {
+                g.vv = g.vu
+                if (g.t is String && g.b is String) {
+                    val a : Int = (measuredHeight - g.vv - g.vf - (measuredHeight - g.vl))/2
+                    g.vf += a
+                    g.vl -= a
+                }
+                else if (g.t is String && g.b is Number)
+                    g.vl = g.vv + g.vf
+                else if (g.b is String && g.t is Number)
+                    g.vf = g.vl - g.vv
+            }
+        }
+        lateHorizontalGroupJson.forEach { n ->
+            val g = groupList[n]!!
+            if(g.l is String && g.hf == -1) {
+                val l = (g.l as String).split(".")
+                if(l[0] == n)
+                    throw ((DivisionLayoutExecption(DivisionLayoutExecption.E8)))
+                if(l.size != 2)
+                    throw (DivisionLayoutExecption(DivisionLayoutExecption.E13))
+                val gl = groupList[l[0]]
+                if(gl == null)
+                    throw(DivisionLayoutExecption(DivisionLayoutExecption.E10))
+                else if(gl.hf == -1 || gl.hl == -1)
+                    throw ((DivisionLayoutExecption(DivisionLayoutExecption.E9)))
+                else if(l[1] == "l" || l[1] == "left")
+                    g.hf = gl.hf
+                else if(l[1] == "r" || l[1] == "right")
+                    g.hf = gl.hl
+                else
+                    throw (DivisionLayoutExecption(DivisionLayoutExecption.E7))
+            }
+            if(g.r is String && g.hl == -1) {
+                val r = (g.r as String).split(".")
+                if(r[0] == n)
+                    throw ((DivisionLayoutExecption(DivisionLayoutExecption.E8)))
+                if(r.size != 2)
+                    throw (DivisionLayoutExecption(DivisionLayoutExecption.E13))
+                val gl = groupList[r[0]]
+                if(gl == null)
+                    throw(DivisionLayoutExecption(DivisionLayoutExecption.E10))
+                else if(gl.hf == -1 || gl.hl == -1)
+                    throw ((DivisionLayoutExecption(DivisionLayoutExecption.E9)))
+                else if(r[1] == "l" || r[1] == "left")
+                    g.hl = gl.hf
+                else if(r[1] == "r" || r[1] == "right")
+                    g.hl = gl.hl
+                else
+                    throw (DivisionLayoutExecption(DivisionLayoutExecption.E6))
+            }
+            if(g.hu == -1) {
+                if (g.l is String && g.r is String) g.hv = g.hl - g.hf
+                else if (g.l is String && g.r is Number) {
+                    g.hv = f(measuredWidth - g.hf, anyToFloat(g.w), anyToFloat(g.w) + anyToFloat(g.r))
+                    g.hl = g.hv + g.hf
+                } else if (g.r is String && g.l is Number) {
+                    g.hv = f(g.hl, anyToFloat(g.w), anyToFloat(g.w) + anyToFloat(g.l))
+                    g.hf = g.hl - g.hv
+                }
+            } else {
+                g.hv = g.hu
+                if (g.l is String && g.r is String) {
+                    val a : Int = (measuredWidth - g.hv - g.hf - (measuredWidth - g.hl))/2
+                    g.hf += a
+                    g.hl -= a
+                }
+                else if (g.l is String && g.r is Number)
+                    g.hl = g.hv + g.hf
+                else if (g.r is String && g.l is Number)
+                    g.hf = g.hl - g.hv
+            }
         }
     }
 
     private fun makeGroup(name : String) { if(!groupList.containsKey(name)) groupList[name] = G() }
-
 
     private fun f(p : Int, v : Float, m : Float) : Int {
         return if(v == 0F || m == 0F) 0
         else (p/m*v).toInt()
     }
 
-
     private fun attrGroupJsonObject(string : String) : JSONObject {
         var st = string
         val result : JSONObject
         st = st.trim()
+        st = st.toLowerCase()
         if(st.first() != '{') st = "{".plus(st)
         if(st.last() != '}') st += "}"
         try {
             result = JSONObject(st)
+            if((result.isNull("name") && result.isNull("n")) ||
+                    (result.isNull("height") && result.isNull("h")) ||
+                    (result.isNull("width") && result.isNull("w")))
+                throw(DivisionLayoutExecption(DivisionLayoutExecption.E14))
+            if(!result.isNull("n") && result.isNull("name")) result.put("name",result.get("n"))
+            if(!result.isNull("h") && result.isNull("height")) result.put("height",result.get("h"))
+            if(!result.isNull("w") && result.isNull("width")) result.put("width",result.get("w"))
             if(!result.isNull("l") && result.isNull("left")) result.put("left",result.get("l"))
             if(!result.isNull("t") && result.isNull("top")) result.put("top",result.get("t"))
-            if(!result.isNull("r") && result.isNull("right")) result.put("rignt",result.get("r"))
+            if(!result.isNull("r") && result.isNull("right")) result.put("right",result.get("r"))
             if(!result.isNull("b") && result.isNull("bottom")) result.put("bottom",result.get("b"))
             return result
         } catch (e: JSONException) {
-            throw(DivisionLayoutExecption("Illegal format of group-Json, please check division_create_groups.", e))
+            throw(DivisionLayoutExecption(DivisionLayoutExecption.E1, e))
         }
     }
 
@@ -514,21 +736,55 @@ class DivisionLayout : ViewGroup {
         var st = string
         val result : JSONArray
         st = st.trim()
+        st = st.toLowerCase()
         if(st.first() != '[') st = "[".plus(st)
         if(st.last() != ']') st += "]"
         try {
             result = JSONArray(st)
             for(i in 0 until result.length()) {
                 val jo = result.getJSONObject(i)
+                if((jo.isNull("name") && jo.isNull("n")) ||
+                        (jo.isNull("height") && jo.isNull("h")) ||
+                        (jo.isNull("width") && jo.isNull("w")))
+                    throw(DivisionLayoutExecption(DivisionLayoutExecption.E14))
+                if(!jo.isNull("n") && jo.isNull("name")) jo.put("name",jo.get("n"))
+                if(!jo.isNull("h") && jo.isNull("height")) jo.put("height",jo.get("h"))
+                if(!jo.isNull("w") && jo.isNull("width")) jo.put("width",jo.get("w"))
                 if(!jo.isNull("l") && jo.isNull("left")) jo.put("left",jo.get("l"))
                 if(!jo.isNull("t") && jo.isNull("top")) jo.put("top",jo.get("t"))
-                if(!jo.isNull("r") && jo.isNull("right")) jo.put("rignt",jo.get("r"))
+                if(!jo.isNull("r") && jo.isNull("right")) jo.put("right",jo.get("r"))
                 if(!jo.isNull("b") && jo.isNull("bottom")) jo.put("bottom",jo.get("b"))
             }
             return result
         } catch (e: JSONException) {
-            throw(DivisionLayoutExecption("Illegal format of group-Json, please check division_create_groups.", e))
+            throw(DivisionLayoutExecption(DivisionLayoutExecption.E1, e))
         }
+    }
+
+    private fun stringToPx(string : String) : Int {
+        var s = string
+        s = s.toLowerCase()
+        s = s.trim()
+        if(s.substring(s.length - 2) == "dp") {
+            s = s.substring(0,s.length - 2)
+            s.toIntOrNull().let {
+                if(it == null)
+                    throw (DivisionLayoutExecption(DivisionLayoutExecption.E11))
+                return (it * resources.displayMetrics.density).toInt()
+            }
+        } else if(s.substring(s.length - 2) == "px") {
+            s = s.substring(0,s.length - 2)
+            s.toIntOrNull().let{
+                if(it == null)
+                    throw (DivisionLayoutExecption(DivisionLayoutExecption.E11))
+                return it
+            }
+        } else
+            throw (DivisionLayoutExecption(DivisionLayoutExecption.E11))
+    }
+    
+    private fun anyToFloat(a : Any) : Float {
+        return (a as Number).toFloat()
     }
 
     override fun generateLayoutParams(attrs: AttributeSet): DivisionLayout.LayoutParams {
@@ -606,6 +862,7 @@ class DivisionLayout : ViewGroup {
         var vf = 0
         var vv = 0
         var vl = 0
+        var vu = -1
         var t : Any = 0F
         var b : Any = 0F
         var h : Any = 1F
@@ -615,6 +872,7 @@ class DivisionLayout : ViewGroup {
         var hf = 0
         var hv = 0
         var hl = 0
+        var hu = -1
         var l : Any = 0F
         var r : Any = 0F
         var w : Any = 1F
@@ -622,18 +880,15 @@ class DivisionLayout : ViewGroup {
         val horizontalOrderList = HashMap<Int,ArrayList<Int>>()
 
         init {
-            vf = f(measuredHeight, t as Float, t as Float + h as Float + b as Float)
-            vl = f(measuredHeight, b as Float, t as Float + h as Float + b as Float)
-            vv = vf - vl
-            hf = f(measuredWidth, l as Float, l as Float + w as Float + r as Float)
-            hl = f(measuredWidth, r as Float, l as Float + w as Float + r as Float)
-            hv = hf - hl
+            vv = measuredHeight
+            hv = measuredWidth
         }
 
         fun reset() {
             va = 0F
             vf = 0
-            vv = 0
+            vv = measuredHeight
+            vu = -1
             t = 0F
             b = 0F
             h = 1F
@@ -641,12 +896,24 @@ class DivisionLayout : ViewGroup {
             verticalOrderList.values.forEach { it.clear() }
             ha = 0F
             hf = 0
-            hv = 0
+            hv = measuredWidth
+            hu = -1
             l = 0F
             r = 0F
             w = 1F
             horizontalList.clear()
             horizontalOrderList.values.forEach { it.clear() }
+        }
+
+        fun onJson() {
+            vf = -1
+            vv = -1
+            vl = -1
+            vu = -1
+            hf = -1
+            hv = -1
+            hl = -1
+            hu = -1
         }
     }
 
