@@ -18,7 +18,12 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.example2)
         val divisionLayout = division
         btn.setOnClickListener {
-            Log.i("mmm",divisionLayout.getGroups().toString())
+            val gl = divisionLayout.getGroups()
+            val g1 = divisionLayout.getGroup("g1")!!
+            val g2 = divisionLayout.getGroup("g2")!!
+            g1.bottom = g2.bottomPosition
+            g1.height = DivisionGroup.WRAP
+            divisionLayout.notifyGroupChanged()
         }
 //        val divisionLayout = testdivision
 //        val test3 = TextView(this)

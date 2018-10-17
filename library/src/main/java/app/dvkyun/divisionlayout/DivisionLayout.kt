@@ -2,8 +2,6 @@ package app.dvkyun.divisionlayout
 
 import android.content.Context
 import android.util.AttributeSet
-import android.util.Log
-import android.util.TypedValue
 import android.view.ViewGroup
 import org.json.JSONArray
 import org.json.JSONException
@@ -18,9 +16,12 @@ class DivisionLayout : ViewGroup {
 
     private val groupList : HashMap<String,G> = HashMap()
     private lateinit var groupJson : JSONArray
+
     private val lateVerticalGroupJson : ArrayList<String> = ArrayList()
     private val lateHorizontalGroupJson : ArrayList<String> = ArrayList()
     private val recycleHashSet : HashSet<String> = HashSet()
+
+    private var divisionGroups : HashMap<String,DivisionGroup> = HashMap()
 
     private val defaultVerticalGroup : ArrayList<Int> = ArrayList()
     private val defaultHorizontalGroup : ArrayList<Int> = ArrayList()
@@ -61,100 +62,96 @@ class DivisionLayout : ViewGroup {
         }
     }
 
-    //return grouplist by JSONArray
-    fun getGroupsByJson() : JSONArray {
-        val gl = JSONArray()
-        for(g in groupList) {
-            val go = JSONObject()
-            go.put("name",g.key)
-            go.put("top",g.value.t)
-            go.put("height",g.value.h)
-            go.put("bottom",g.value.b)
-            go.put("left",g.value.l)
-            go.put("width",g.value.w)
-            go.put("right",g.value.r)
-            gl.put(go)
+    /*
+    *
+    * public functions
+    *
+    * */
+
+    /*
+    *
+    * return custom group by name.
+    * this function can return null.
+    *
+    * */
+    fun getGroup(name : String) : DivisionGroup? {
+        if(name == LayoutParams.DEFAULT_GROUP) return null
+        else {
+            groupList[name]?.let { g->
+                val dg = DivisionGroup(name)
+                dg.top = g.t
+                dg.height = g.h
+                dg.bottom = g.b
+                dg.left = g.l
+                dg.width = g.w
+                dg.right = g.r
+                divisionGroups[name] = dg
+                return dg
+            }.let {
+                return null
+            }
         }
-        return gl
     }
 
-    //return grouplist by ArrayList<DivisionGroup>
-    fun getGroups() : ArrayList<DivisionGroup> {
-        val ga = ArrayList<DivisionGroup>()
-        Log.i("mmm",groupList.size.toString())
+    /*
+    *
+    * return custom grouplist as Collection<DivisionGroup>
+    *
+    * */
+    fun getGroups() : Collection<DivisionGroup> {
+        val ga = HashSet<DivisionGroup>()
         for(g in groupList) {
-            val dg = DivisionGroup(g.key)
-            dg.top is String
-            dg.top = g.value.t
-            dg.height = g.value.h
-            dg.bottom = g.value.b
-            dg.left = g.value.l
-            dg.width = g.value.w
-            dg.right = g.value.r
-            ga.add(dg)
+            if(g.key != LayoutParams.DEFAULT_GROUP) {
+                val dg = DivisionGroup(g.key)
+                dg.top = g.value.t
+                dg.height = g.value.h
+                dg.bottom = g.value.b
+                dg.left = g.value.l
+                dg.width = g.value.w
+                dg.right = g.value.r
+                ga.add(dg)
+                divisionGroups[g.key] = dg
+            }
         }
         return ga
     }
 
-    //set grouplist by JSONArray
-    //When this function is called, it redraws the layout
-    fun setGroups(jsonArray : JSONArray) {
-        groupJson = jsonArray
-        requestLayout()
-    }
-
-    //set grouplist by ArrayList<DivisionGroup>
-    //When this function is successfully called, it redraws the layout
-    fun setGroups(arrayList: ArrayList<DivisionGroup>) {
+    /*
+    *
+    * set custom groups by ArrayList<DivisionGroup>
+    * When this function is successfully called, it redraws the layout
+    *
+    * */
+    fun setGroups(list: Iterable<DivisionGroup>) {
         try {
             val gl = JSONArray()
-            for(a in arrayList) {
-                val go = JSONObject()
-                go.put("name",a.name)
-                go.put("top",a.top)
-                go.put("height",a.height)
-                go.put("bottom",a.bottom)
-                go.put("left",a.left)
-                go.put("width",a.width)
-                go.put("right",a.right)
-                gl.put(go)
+            for(a in list) {
+                if(a.name != LayoutParams.DEFAULT_GROUP) {
+                    val go = JSONObject()
+                    go.put("name", a.name)
+                    go.put("top", a.top)
+                    go.put("height", a.height)
+                    go.put("bottom", a.bottom)
+                    go.put("left", a.left)
+                    go.put("width", a.width)
+                    go.put("right", a.right)
+                    gl.put(go)
+                }
             }
             groupJson = gl
+            divisionGroups.clear()
             requestLayout()
         } catch (e : JSONException) {
             throw(DivisionLayoutExecption(DivisionLayoutExecption.E2,e))
         }
     }
 
-    //reset or add a single group by JSONObject
-    //When this function is successfully called, it redraws the layout
-    fun setGroup(jsonObject : JSONObject) {
-        try {
-            var f = -1
-            for(i in 0 until groupJson.length()) {
-                if(jsonObject.getString("name") == groupJson.getJSONObject(i).getString("name")) {
-                    f = i
-                    break
-                }
-            }
-            val go = JSONObject()
-            go.put("name",jsonObject.getString("name"))
-            if(!jsonObject.isNull("top")) go.put("top",jsonObject.get("top"))
-            if(!jsonObject.isNull("height")) go.put("height",jsonObject.get("height"))
-            if(!jsonObject.isNull("bottom")) go.put("bottom",jsonObject.get("bottom"))
-            if(!jsonObject.isNull("left")) go.put("left",jsonObject.get("left"))
-            if(!jsonObject.isNull("width")) go.put("width",jsonObject.get("width"))
-            if(!jsonObject.isNull("right")) go.put("right",jsonObject.get("right"))
-            if(f != -1) groupJson.put(f,go)
-            else groupJson.put(go)
-            requestLayout()
-        } catch (e : JSONException) {
-            throw(DivisionLayoutExecption(DivisionLayoutExecption.E3,e))
-        }
-    }
-
-    //reset or add a single group by JSONObject
-    //When this function is successfully called, it redraws the layout
+    /*
+    *
+    * reset or add a single group
+    * When this function is successfully called, it redraws the layout
+    *
+    * */
     fun setGroup(divisionGroup: DivisionGroup) {
         try {
             var f = -1
@@ -174,11 +171,47 @@ class DivisionLayout : ViewGroup {
             go.put("right",divisionGroup.right)
             if(f != -1) groupJson.put(f,go)
             else groupJson.put(go)
+            divisionGroups.remove(divisionGroup.name)
             requestLayout()
         } catch (e : JSONException) {
             throw(DivisionLayoutExecption(DivisionLayoutExecption.E2,e))
         }
     }
+
+
+    /*
+    *
+    * Automatically sets the groups invoked by the get command.
+    * When this function is successfully called, it redraws the layout
+    *
+    * */
+    fun notifyGroupChanged() {
+        try {
+            val gl = JSONArray()
+            for(a in divisionGroups.values) {
+                val go = JSONObject()
+                go.put("name", a.name)
+                go.put("top", a.top)
+                go.put("height", a.height)
+                go.put("bottom", a.bottom)
+                go.put("left", a.left)
+                go.put("width", a.width)
+                go.put("right", a.right)
+                gl.put(go)
+            }
+            groupJson = gl
+            divisionGroups.clear()
+            requestLayout()
+        } catch (e : JSONException) {
+            throw(DivisionLayoutExecption(DivisionLayoutExecption.E2,e))
+        }
+    }
+
+    /*
+    *
+    * private methods
+    *
+    * */
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
@@ -432,14 +465,15 @@ class DivisionLayout : ViewGroup {
         lateVerticalGroupJson.clear()
         lateHorizontalGroupJson.clear()
         recycleHashSet.clear()
+
         for(i in 0 until groupJson.length()) {
             try {
                 val g = groupJson.getJSONObject(i)
                 val n = g.getString("name")
-                makeGroup(n)
                 if(recycleHashSet.contains(n))
                     throw (DivisionLayoutExecption(DivisionLayoutExecption.E15))
                 recycleHashSet.add(n)
+                makeGroup(n)
                 val gr = groupList[n]!!
                 gr.onJson()
                 if(!g.isNull("height")) gr.h = g.get("height")
@@ -610,7 +644,7 @@ class DivisionLayout : ViewGroup {
         if(st.last() != '}') st += "}"
         try {
             result = JSONObject(st)
-            if(result.isNull("name") && result.isNull("n"))
+            if(result.isNull("name") && result.isNull("n") && result.getString("name") == "")
                 throw DivisionLayoutExecption(DivisionLayoutExecption.E14)
             if(!result.isNull("n") && result.isNull("name")) result.put("name",result.get("n"))
             if(!result.isNull("h") && result.isNull("height")) result.put("height",result.get("h"))
@@ -636,7 +670,7 @@ class DivisionLayout : ViewGroup {
             result = JSONArray(st)
             for(i in 0 until result.length()) {
                 val jo = result.getJSONObject(i)
-                if(jo.isNull("name") && jo.isNull("n"))
+                if(jo.isNull("name") && jo.isNull("n") && jo.getString("name") == "")
                     throw(DivisionLayoutExecption(DivisionLayoutExecption.E14))
                 if(!jo.isNull("n") && jo.isNull("name")) jo.put("name",jo.get("n"))
                 if(!jo.isNull("h") && jo.isNull("height")) jo.put("height",jo.get("h"))

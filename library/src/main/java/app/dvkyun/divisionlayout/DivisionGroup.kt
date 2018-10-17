@@ -1,6 +1,11 @@
 package app.dvkyun.divisionlayout
 
-data class DivisionGroup(val name : String) {
+class DivisionGroup(val name : String) {
+
+    companion object {
+        const val WRAP = "wrap"
+    }
+
     val leftPosition = name.plus(".left")
     val topPosition = name.plus(".top")
     val rightPosition = name.plus(".right")
@@ -12,4 +17,5 @@ data class DivisionGroup(val name : String) {
     var bottom : Any = 0F
     var height : Any = 1F
     var width : Any = 1F
+
 }
