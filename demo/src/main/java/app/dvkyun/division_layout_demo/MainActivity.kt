@@ -3,17 +3,23 @@ package app.dvkyun.division_layout_demo
 import android.graphics.Color
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.Gravity
 import android.widget.TextView
 import app.dvkyun.divisionlayout.DivisionGroup
 import app.dvkyun.divisionlayout.DivisionLayout
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.example2.*
 
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.example2)
+        val divisionLayout = division
+        btn.setOnClickListener {
+            Log.i("mmm",divisionLayout.getGroups().toString())
+        }
 //        val divisionLayout = testdivision
 //        val test3 = TextView(this)
 //        test3.text = "test3"

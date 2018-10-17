@@ -2,17 +2,33 @@
 <app.dvkyun.divisionlayout.DivisionLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/division"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    app:division_create_group_1="name:g1;t:100dp,h:5,b:1,l:3,width:200dp,r:1"
-    app:division_create_group_2="name:g2,top:g1.t,height:1,b:1,l:g1.l,width:124dp,r:g1.r">
+    app:division_create_group_1="name:g2, top:100dp,h:5,b:1,l:3,width:200dp,r:1"
+    app:division_create_group_2="name:g1, h:1, t:g3.t, b:1, l:g2.l, width:124dp, r:g2.r"
+    app:division_create_group_3="n:g3, b:g2.t">
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/btn"/>
 
     <View
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="#d45"
-        app:division_vertical_group="g2"
-        app:division_horizontal_group="g2"
+        app:division_vertical_group="g1"
+        app:division_horizontal_group="g1"
         app:division_height="1"
         app:division_width="1"/>
+    <View
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#f66"
+        app:division_vertical_group=""
+        app:division_top="1"
+        app:division_width="1"
+        app:division_right="1"
+        app:division_height="1"/>
 
 </app.dvkyun.divisionlayout.DivisionLayout>

@@ -15,12 +15,13 @@ class DivisionLayoutExecption : Exception {
         const val E6 = "Incorrect input value. Only top or bottom values are allowed."
         const val E7 = "Incorrect input value. Only left or right values are allowed."
         const val E8 = "Group can not specify itself."
-        const val E9 = "The group to be assigned must have a fixed horizontal or vertical value."
+        const val E9 = "The group should be assigned a fixed horizontal or vertical value. Do not fall into the loop."
         const val E10 = "Must specify an existing group."
         const val E11 = "Invalid input value. Dp or px type of int is required."
         const val E12 = "Invalid input value. The exact value(dp or px) or ratio(float) is required."
         const val E13 = "Please enter a bullet (.) Correctly."
-        const val E14 = "When create a group in xml, must need the name, height, and width."
+        const val E14 = "When create a group in xml, must need the name."
+        const val E15 = "Group names can not be duplicated."
     }
 
 }
