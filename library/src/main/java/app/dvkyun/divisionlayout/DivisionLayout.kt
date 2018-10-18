@@ -325,7 +325,7 @@ class DivisionLayout : ViewGroup {
         defaultVerticalDivision.clear()
         defaultHorizontalDivision.clear()
 
-        gropJsonSet(widthMeasureSpec, heightMeasureSpec)
+        divisionJsonSet(widthMeasureSpec, heightMeasureSpec)
 
         for(i in 0 until childCount) {
             val c = getChildAt(i)
@@ -342,8 +342,6 @@ class DivisionLayout : ViewGroup {
             if(lp.verticalDivision != LayoutParams.DEFAULT_DIVISION) {
                 if(lp.height == ViewGroup.LayoutParams.MATCH_PARENT)
                     lp.matchHeight = vg.vl - vg.vf
-                if(lp.width == ViewGroup.LayoutParams.MATCH_PARENT)
-                    lp.matchWidth = hg.hl - hg.hf
                 if(lp.verticalOrder == LayoutParams.DEFAULT_ORDER)
                     vg.verticalList.add(i)
                 else {
@@ -365,6 +363,8 @@ class DivisionLayout : ViewGroup {
                 }
             } else defaultVerticalDivision.add(i)
             if(lp.horizontalDivision != LayoutParams.DEFAULT_DIVISION) {
+                if(lp.width == ViewGroup.LayoutParams.MATCH_PARENT)
+                    lp.matchWidth = hg.hl - hg.hf
                 if(lp.horizontalOrder == LayoutParams.DEFAULT_ORDER)
                     hg.horizontalList.add(i)
                 else {
@@ -406,6 +406,7 @@ class DivisionLayout : ViewGroup {
                 val c = getChildAt(it)
                 val lp = c.layoutParams as DivisionLayout.LayoutParams
                 lp.mhs = when (lp.height) {
+                    ViewGroup.LayoutParams.MATCH_PARENT -> getChildMeasureSpec(heightMeasureSpec, 0, lp.matchHeight)
                     0 -> getChildMeasureSpec(heightMeasureSpec, 0, f(g.vv, lp.divHeight, g.va))
                     else -> getChildMeasureSpec(heightMeasureSpec, 0, lp.height)
                 }
@@ -421,6 +422,7 @@ class DivisionLayout : ViewGroup {
                 val c = getChildAt(it)
                 val lp = c.layoutParams as DivisionLayout.LayoutParams
                 lp.mws = when (lp.width) {
+                    ViewGroup.LayoutParams.MATCH_PARENT -> getChildMeasureSpec(widthMeasureSpec, 0, lp.matchWidth)
                     0 -> getChildMeasureSpec(widthMeasureSpec, 0, f(g.hv, lp.divWidth, g.ha))
                     else -> getChildMeasureSpec(widthMeasureSpec, 0, lp.width)
                 }
@@ -465,7 +467,7 @@ class DivisionLayout : ViewGroup {
         }
     }
 
-    private fun gropJsonSet(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+    private fun divisionJsonSet(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         lateVerticalDivisionJson.clear()
         lateHorizontalDivisionJson.clear()
         recycleHashSet.clear()
@@ -1005,7 +1007,9 @@ class DivisionLayout : ViewGroup {
 
         init {
             vv = measuredHeight
+            vl = vv
             hv = measuredWidth
+            hl = hv
         }
 
         fun reset() {
