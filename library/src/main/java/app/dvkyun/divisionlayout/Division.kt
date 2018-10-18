@@ -1,6 +1,6 @@
 package app.dvkyun.divisionlayout
 
-class DivisionGroup(val name : String) {
+class Division(val name : String) {
 
     companion object {
         const val WRAP = "wrap"

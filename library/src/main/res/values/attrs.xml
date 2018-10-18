@@ -2,40 +2,40 @@
 <resources>
 
     <declare-styleable name="DivisionLayout_Layout">
-        <attr name="division_width" format="float"/>
-        <attr name="division_height" format="float"/>
-        <attr name="division_left" format="float"/>
-        <attr name="division_right" format="float"/>
-        <attr name="division_top" format="float"/>
-        <attr name="division_bottom" format="float"/>
-        <attr name="division_vertical_group" format="string"/>
-        <attr name="division_horizontal_group" format="string"/>
-        <attr name="division_vertical_order" format="integer"/>
-        <attr name="division_horizontal_order" format="integer"/>
+        <attr name="div_member_width" format="float"/>
+        <attr name="div_member_height" format="float"/>
+        <attr name="div_member_left" format="float"/>
+        <attr name="div_member_right" format="float"/>
+        <attr name="div_member_top" format="float"/>
+        <attr name="div_member_bottom" format="float"/>
+        <attr name="vertical_div" format="string"/>
+        <attr name="horizontal_div" format="string"/>
+        <attr name="vertical_div_order" format="integer"/>
+        <attr name="horizontal_div_order" format="integer"/>
     </declare-styleable>
 
     <declare-styleable name="DivisionLayout">
-        <attr name="division_create_groups" format="string"/>
-        <attr name="division_create_group_1" format="string"/>
-        <attr name="division_create_group_2" format="string"/>
-        <attr name="division_create_group_3" format="string"/>
-        <attr name="division_create_group_4" format="string"/>
-        <attr name="division_create_group_5" format="string"/>
-        <attr name="division_create_group_6" format="string"/>
-        <attr name="division_create_group_7" format="string"/>
-        <attr name="division_create_group_8" format="string"/>
-        <attr name="division_create_group_9" format="string"/>
-        <attr name="division_create_group_10" format="string"/>
-        <attr name="division_create_group_11" format="string"/>
-        <attr name="division_create_group_12" format="string"/>
-        <attr name="division_create_group_13" format="string"/>
-        <attr name="division_create_group_14" format="string"/>
-        <attr name="division_create_group_15" format="string"/>
-        <attr name="division_create_group_16" format="string"/>
-        <attr name="division_create_group_17" format="string"/>
-        <attr name="division_create_group_18" format="string"/>
-        <attr name="division_create_group_19" format="string"/>
-        <attr name="division_create_group_20" format="string"/>
+        <attr name="create_divisions" format="string"/>
+        <attr name="create_division_1" format="string"/>
+        <attr name="create_division_2" format="string"/>
+        <attr name="create_division_3" format="string"/>
+        <attr name="create_division_4" format="string"/>
+        <attr name="create_division_5" format="string"/>
+        <attr name="create_division_6" format="string"/>
+        <attr name="create_division_7" format="string"/>
+        <attr name="create_division_8" format="string"/>
+        <attr name="create_division_9" format="string"/>
+        <attr name="create_division_10" format="string"/>
+        <attr name="create_division_11" format="string"/>
+        <attr name="create_division_12" format="string"/>
+        <attr name="create_division_13" format="string"/>
+        <attr name="create_division_14" format="string"/>
+        <attr name="create_division_15" format="string"/>
+        <attr name="create_division_16" format="string"/>
+        <attr name="create_division_17" format="string"/>
+        <attr name="create_division_18" format="string"/>
+        <attr name="create_division_19" format="string"/>
+        <attr name="create_division_20" format="string"/>
     </declare-styleable>
 
 </resources>

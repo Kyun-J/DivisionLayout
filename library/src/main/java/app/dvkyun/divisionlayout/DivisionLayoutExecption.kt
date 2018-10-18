@@ -16,7 +16,7 @@ class DivisionLayoutExecption : Exception {
         const val E7 = "Incorrect input value. Only left or right values are allowed."
         const val E8 = "Group can not specify itself."
         const val E9 = "The group should be assigned a fixed horizontal or vertical value. Do not fall into the loop."
-        const val E10 = "Must specify an existing group."
+        const val E10 = "Must specify an existing group. Also, the group that was called in parent can not associate with the group that was first called in the child view."
         const val E11 = "Invalid input value. Dp or px type of int is required."
         const val E12 = "Invalid input value. The exact value(dp or px) or ratio(float) is required."
         const val E13 = "Please enter a bullet (.) Correctly."

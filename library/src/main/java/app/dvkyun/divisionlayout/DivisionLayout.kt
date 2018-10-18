@@ -2,6 +2,7 @@ package app.dvkyun.divisionlayout
 
 import android.content.Context
 import android.util.AttributeSet
+import android.util.Log
 import android.view.ViewGroup
 import org.json.JSONArray
 import org.json.JSONException
@@ -11,20 +12,20 @@ class DivisionLayout : ViewGroup {
 
     companion object {
         private const val TAG = "DivisionLayout"
-        private const val FIELD = "DivisionLayout_division_create_group_"
+        private const val FIELD = "DivisionLayout_create_division_"
     }
 
-    private val groupList : HashMap<String,G> = HashMap()
-    private lateinit var groupJson : JSONArray
+    private val divisionList : HashMap<String,D> = HashMap()
+    private lateinit var divisionJson : JSONArray
 
-    private val lateVerticalGroupJson : ArrayList<String> = ArrayList()
-    private val lateHorizontalGroupJson : ArrayList<String> = ArrayList()
+    private val lateVerticalDivisionJson : ArrayList<String> = ArrayList()
+    private val lateHorizontalDivisionJson : ArrayList<String> = ArrayList()
     private val recycleHashSet : HashSet<String> = HashSet()
 
-    private var divisionGroups : HashMap<String,DivisionGroup> = HashMap()
+    private var calledDivision : HashMap<String,Division> = HashMap()
 
-    private val defaultVerticalGroup : ArrayList<Int> = ArrayList()
-    private val defaultHorizontalGroup : ArrayList<Int> = ArrayList()
+    private val defaultVerticalDivision : ArrayList<Int> = ArrayList()
+    private val defaultHorizontalDivision : ArrayList<Int> = ArrayList()
 
     private var verticalWrapMode = false
     private var horizontalWrapMode = false
@@ -34,24 +35,25 @@ class DivisionLayout : ViewGroup {
     constructor(context: Context?) : this(context, null)
     constructor(context: Context?, attrs: AttributeSet?) : this(context, attrs, 0)
     constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
-        groupList[""] = G()
+        divisionList[""] = D()
         context?.let { c ->
             attrs?.let { a ->
                 val r = R.styleable::class.java
                 val ta = c.theme.obtainStyledAttributes(a,R.styleable.DivisionLayout,0,0)
-                ta.getString(R.styleable.DivisionLayout_division_create_groups)?.let {
+                ta.getString(R.styleable.DivisionLayout_create_divisions)?.let {
                     try {
-                        groupJson = attrGroupJsonArray(it)
+                        divisionJson = attrDivisionJsonArray(it)
                     } catch (e: JSONException) {
                         throw(DivisionLayoutExecption(DivisionLayoutExecption.E1, e))
                     }
                 }.let {
-                    groupJson = JSONArray()
+                    if(it == null) divisionJson = JSONArray()
                 }
+                Log.i("mmm",divisionJson.toString())
                 for(i in 1 .. 20) {
                     ta.getString(r.getField(FIELD.plus(i)).getInt(R.styleable::class.java))?.let {
                         try {
-                            groupJson.put(attrGroupJsonObject(it))
+                            divisionJson.put(attrDivisionJsonObject(it))
                         } catch (e : JSONException) {
                             throw(DivisionLayoutExecption(DivisionLayoutExecption.E1,e))
                         }
@@ -70,22 +72,22 @@ class DivisionLayout : ViewGroup {
 
     /*
     *
-    * return custom group by name.
+    * return division by name.
     * this function can return null.
     *
     * */
-    fun getGroup(name : String) : DivisionGroup? {
-        if(name == LayoutParams.DEFAULT_GROUP) return null
+    fun getDivision(name : String) : Division? {
+        if(name == LayoutParams.DEFAULT_DIVISION) return null
         else {
-            groupList[name]?.let { g->
-                val dg = DivisionGroup(name)
+            divisionList[name]?.let { g->
+                val dg = Division(name)
                 dg.top = g.t
                 dg.height = g.h
                 dg.bottom = g.b
                 dg.left = g.l
                 dg.width = g.w
                 dg.right = g.r
-                divisionGroups[name] = dg
+                calledDivision[name] = dg
                 return dg
             }.let {
                 return null
@@ -95,14 +97,14 @@ class DivisionLayout : ViewGroup {
 
     /*
     *
-    * return custom grouplist as Collection<DivisionGroup>
+    * return all divisions as Collection<Division>
     *
     * */
-    fun getGroups() : Collection<DivisionGroup> {
-        val ga = HashSet<DivisionGroup>()
-        for(g in groupList) {
-            if(g.key != LayoutParams.DEFAULT_GROUP) {
-                val dg = DivisionGroup(g.key)
+    fun getAllDivision() : Collection<Division> {
+        val ga = HashSet<Division>()
+        for(g in divisionList) {
+            if(g.key != LayoutParams.DEFAULT_DIVISION) {
+                val dg = Division(g.key)
                 dg.top = g.value.t
                 dg.height = g.value.h
                 dg.bottom = g.value.b
@@ -110,7 +112,7 @@ class DivisionLayout : ViewGroup {
                 dg.width = g.value.w
                 dg.right = g.value.r
                 ga.add(dg)
-                divisionGroups[g.key] = dg
+                calledDivision[g.key] = dg
             }
         }
         return ga
@@ -118,15 +120,15 @@ class DivisionLayout : ViewGroup {
 
     /*
     *
-    * set custom groups by ArrayList<DivisionGroup>
+    * reset all divisions by Iterable<Division>
     * When this function is successfully called, it redraws the layout
     *
     * */
-    fun setGroups(list: Iterable<DivisionGroup>) {
+    fun setAllDivision(list: Iterable<Division>) {
         try {
             val gl = JSONArray()
             for(a in list) {
-                if(a.name != LayoutParams.DEFAULT_GROUP) {
+                if(a.name != LayoutParams.DEFAULT_DIVISION) {
                     val go = JSONObject()
                     go.put("name", a.name)
                     go.put("top", a.top)
@@ -138,8 +140,8 @@ class DivisionLayout : ViewGroup {
                     gl.put(go)
                 }
             }
-            groupJson = gl
-            divisionGroups.clear()
+            divisionJson = gl
+            calledDivision.clear()
             requestLayout()
         } catch (e : JSONException) {
             throw(DivisionLayoutExecption(DivisionLayoutExecption.E2,e))
@@ -148,30 +150,30 @@ class DivisionLayout : ViewGroup {
 
     /*
     *
-    * reset or add a single group
+    * reset or add a single division
     * When this function is successfully called, it redraws the layout
     *
     * */
-    fun setGroup(divisionGroup: DivisionGroup) {
+    fun setDivision(division: Division) {
         try {
             var f = -1
-            for(i in 0 until groupJson.length()) {
-                if(divisionGroup.name == groupJson.getJSONObject(i).getString("name")) {
+            for(i in 0 until divisionJson.length()) {
+                if(division.name == divisionJson.getJSONObject(i).getString("name")) {
                     f = i
                     break
                 }
             }
             val go = JSONObject()
-            go.put("name",divisionGroup.name)
-            go.put("top",divisionGroup.top)
-            go.put("height",divisionGroup.height)
-            go.put("bottom",divisionGroup.bottom)
-            go.put("left",divisionGroup.left)
-            go.put("width",divisionGroup.width)
-            go.put("right",divisionGroup.right)
-            if(f != -1) groupJson.put(f,go)
-            else groupJson.put(go)
-            divisionGroups.remove(divisionGroup.name)
+            go.put("name",division.name)
+            go.put("top",division.top)
+            go.put("height",division.height)
+            go.put("bottom",division.bottom)
+            go.put("left",division.left)
+            go.put("width",division.width)
+            go.put("right",division.right)
+            if(f != -1) divisionJson.put(f,go)
+            else divisionJson.put(go)
+            calledDivision.remove(division.name)
             requestLayout()
         } catch (e : JSONException) {
             throw(DivisionLayoutExecption(DivisionLayoutExecption.E2,e))
@@ -181,14 +183,14 @@ class DivisionLayout : ViewGroup {
 
     /*
     *
-    * Automatically sets the groups invoked by the get command.
+    * Automatically set divisions invoked by the get command.
     * When this function is successfully called, it redraws the layout
     *
     * */
-    fun notifyGroupChanged() {
+    fun notifyDivisionChanged() {
         try {
             val gl = JSONArray()
-            for(a in divisionGroups.values) {
+            for(a in calledDivision.values) {
                 val go = JSONObject()
                 go.put("name", a.name)
                 go.put("top", a.top)
@@ -199,8 +201,8 @@ class DivisionLayout : ViewGroup {
                 go.put("right", a.right)
                 gl.put(go)
             }
-            groupJson = gl
-            divisionGroups.clear()
+            divisionJson = gl
+            calledDivision.clear()
             requestLayout()
         } catch (e : JSONException) {
             throw(DivisionLayoutExecption(DivisionLayoutExecption.E2,e))
@@ -255,14 +257,19 @@ class DivisionLayout : ViewGroup {
     }
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
-        for(g in groupList.values) {
+        for(g in divisionList.values) {
             var lv = g.vf
             g.verticalList.forEach {
                 val c = getChildAt(it)
                 val lp = c.layoutParams as DivisionLayout.LayoutParams
-                lp.lt = lv + f(g.vv, lp.divTop, g.va)
-                lp.lb = lp.lt + lp.mh
-                lv = lp.lb + f(g.vv, lp.divBottom, g.va)
+                if(lp.height == ViewGroup.LayoutParams.MATCH_PARENT) {
+                    lp.lt = g.vf
+                    lp.lb = g.vl
+                } else {
+                    lp.lt = lv + f(g.vv, lp.divTop, g.va)
+                    lp.lb = lp.lt + lp.mh
+                    lv = lp.lb + f(g.vv, lp.divBottom, g.va)
+                }
                 if(lp.lc) {
                     c.layout(lp.ll,lp.lt,lp.lr,lp.lb)
                     lp.lc = false
@@ -273,9 +280,14 @@ class DivisionLayout : ViewGroup {
             g.horizontalList.forEach {
                 val c = getChildAt(it)
                 val lp = c.layoutParams as DivisionLayout.LayoutParams
-                lp.ll = lh + f(g.hv, lp.divLeft, g.ha)
-                lp.lr = lp.ll + lp.mw
-                lh = lp.lr + f(g.hv, lp.divRight, g.ha)
+                if(lp.width == ViewGroup.LayoutParams.MATCH_PARENT) {
+                    lp.ll = g.hf
+                    lp.lr = g.hl
+                } else {
+                    lp.ll = lh + f(g.hv, lp.divLeft, g.ha)
+                    lp.lr = lp.ll + lp.mw
+                    lh = lp.lr + f(g.hv, lp.divRight, g.ha)
+                }
                 if(lp.lc) {
                     c.layout(lp.ll,lp.lt,lp.lr,lp.lb)
                     lp.lc = false
@@ -283,7 +295,7 @@ class DivisionLayout : ViewGroup {
                 else lp.lc = true
             }
         }
-        defaultVerticalGroup.forEach {
+        defaultVerticalDivision.forEach {
             val c = getChildAt(it)
             val lp = c.layoutParams as DivisionLayout.LayoutParams
             val m = lp.divTop + lp.divBottom
@@ -295,7 +307,7 @@ class DivisionLayout : ViewGroup {
             }
             else lp.lc = true
         }
-        defaultHorizontalGroup.forEach {
+        defaultHorizontalDivision.forEach {
             val c = getChildAt(it)
             val lp = c.layoutParams as DivisionLayout.LayoutParams
             val m = lp.divLeft + lp.divRight
@@ -309,35 +321,29 @@ class DivisionLayout : ViewGroup {
     }
 
     private fun measureWithGroup(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        for(g in groupList.values) g.reset()
-        defaultVerticalGroup.clear()
-        defaultHorizontalGroup.clear()
+        for(g in divisionList.values) g.reset()
+        defaultVerticalDivision.clear()
+        defaultHorizontalDivision.clear()
 
-        groupJsonSet()
+        gropJsonSet(widthMeasureSpec, heightMeasureSpec)
 
         for(i in 0 until childCount) {
             val c = getChildAt(i)
             val lp = c.layoutParams as DivisionLayout.LayoutParams
-            if(lp.verticalOrder > childCount || lp.horizontalOrder > childCount)
+            if (lp.verticalOrder > childCount || lp.horizontalOrder > childCount)
                 throw(DivisionLayoutExecption("Order can not be greater than the number of views."))
-            if(lp.divWidth < 0 || lp.divHeight < 0 || lp.divTop < 0 || lp.divBottom < 0 || lp.divLeft < 0 || lp.divRight < 0)
+            if (lp.divWidth < 0 || lp.divHeight < 0 || lp.divTop < 0 || lp.divBottom < 0 || lp.divLeft < 0 || lp.divRight < 0)
                 throw(DivisionLayoutExecption("Value must be greater than -1."))
-            if(lp.verticalOrder < LayoutParams.DEFAULT_ORDER || lp.horizontalOrder < LayoutParams.DEFAULT_ORDER)
-                throw(DivisionLayoutExecption("Order must be greater than "+ LayoutParams.DEFAULT_ORDER.toString()+"."))
-            if(lp.height == ViewGroup.LayoutParams.MATCH_PARENT) {
-                lp.verticalGroup = LayoutParams.DEFAULT_GROUP
-                if(!verticalWrapMode)
-                    lp.divTop = 0F; lp.divBottom = 0F
-            }
-            if(lp.width == ViewGroup.LayoutParams.MATCH_PARENT) {
-                lp.horizontalGroup = LayoutParams.DEFAULT_GROUP
-                if(!horizontalWrapMode)
-                    lp.divRight = 0F; lp.divLeft = 0F
-            }
-            makeGroup(lp.verticalGroup); makeGroup(lp.horizontalGroup)
-            val vg = groupList[lp.verticalGroup]!!
-            val hg = groupList[lp.horizontalGroup]!!
-            if(lp.verticalGroup != LayoutParams.DEFAULT_GROUP) {
+            if (lp.verticalOrder < LayoutParams.DEFAULT_ORDER || lp.horizontalOrder < LayoutParams.DEFAULT_ORDER)
+                throw(DivisionLayoutExecption("Order must be greater than " + LayoutParams.DEFAULT_ORDER.toString() + "."))
+            makeGroup(lp.verticalDivision); makeGroup(lp.horizontalDivision)
+            val vg = divisionList[lp.verticalDivision]!!
+            val hg = divisionList[lp.horizontalDivision]!!
+            if(lp.verticalDivision != LayoutParams.DEFAULT_DIVISION) {
+                if(lp.height == ViewGroup.LayoutParams.MATCH_PARENT)
+                    lp.matchHeight = vg.vl - vg.vf
+                if(lp.width == ViewGroup.LayoutParams.MATCH_PARENT)
+                    lp.matchWidth = hg.hl - hg.hf
                 if(lp.verticalOrder == LayoutParams.DEFAULT_ORDER)
                     vg.verticalList.add(i)
                 else {
@@ -357,8 +363,8 @@ class DivisionLayout : ViewGroup {
                     } else if (lp.height != 0)
                         vg.vv -= lp.height
                 }
-            } else defaultVerticalGroup.add(i)
-            if(lp.horizontalGroup != LayoutParams.DEFAULT_GROUP) {
+            } else defaultVerticalDivision.add(i)
+            if(lp.horizontalDivision != LayoutParams.DEFAULT_DIVISION) {
                 if(lp.horizontalOrder == LayoutParams.DEFAULT_ORDER)
                     hg.horizontalList.add(i)
                 else {
@@ -378,10 +384,10 @@ class DivisionLayout : ViewGroup {
                     } else if (lp.width != 0)
                         hg.hv -= lp.width
                 }
-            } else defaultHorizontalGroup.add(i)
+            } else defaultHorizontalDivision.add(i)
         }
 
-        for (g in groupList.values) {
+        for (g in divisionList.values) {
             for(l in g.verticalOrderList) {
                 if(l.key-1 > g.verticalList.size)
                     throw(DivisionLayoutExecption(DivisionLayoutExecption.E4))
@@ -400,7 +406,6 @@ class DivisionLayout : ViewGroup {
                 val c = getChildAt(it)
                 val lp = c.layoutParams as DivisionLayout.LayoutParams
                 lp.mhs = when (lp.height) {
-                    ViewGroup.LayoutParams.MATCH_PARENT -> getChildMeasureSpec(heightMeasureSpec,0,measuredHeight)
                     0 -> getChildMeasureSpec(heightMeasureSpec, 0, f(g.vv, lp.divHeight, g.va))
                     else -> getChildMeasureSpec(heightMeasureSpec, 0, lp.height)
                 }
@@ -416,7 +421,6 @@ class DivisionLayout : ViewGroup {
                 val c = getChildAt(it)
                 val lp = c.layoutParams as DivisionLayout.LayoutParams
                 lp.mws = when (lp.width) {
-                    ViewGroup.LayoutParams.MATCH_PARENT -> getChildMeasureSpec(widthMeasureSpec,0,measuredWidth)
                     0 -> getChildMeasureSpec(widthMeasureSpec, 0, f(g.hv, lp.divWidth, g.ha))
                     else -> getChildMeasureSpec(widthMeasureSpec, 0, lp.width)
                 }
@@ -428,7 +432,7 @@ class DivisionLayout : ViewGroup {
                     lp.mc = true
             }
         }
-        defaultVerticalGroup.forEach {
+        defaultVerticalDivision.forEach {
             val c = getChildAt(it)
             val lp = c.layoutParams as DivisionLayout.LayoutParams
             lp.mhs = when (lp.height) {
@@ -444,7 +448,7 @@ class DivisionLayout : ViewGroup {
             } else
                 lp.mc = true
         }
-        defaultHorizontalGroup.forEach {
+        defaultHorizontalDivision.forEach {
             val c = getChildAt(it)
             val lp = c.layoutParams as DivisionLayout.LayoutParams
             lp.mws = when (lp.width) {
@@ -461,20 +465,20 @@ class DivisionLayout : ViewGroup {
         }
     }
 
-    private fun groupJsonSet() {
-        lateVerticalGroupJson.clear()
-        lateHorizontalGroupJson.clear()
+    private fun gropJsonSet(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        lateVerticalDivisionJson.clear()
+        lateHorizontalDivisionJson.clear()
         recycleHashSet.clear()
 
-        for(i in 0 until groupJson.length()) {
+        for(i in 0 until divisionJson.length()) {
             try {
-                val g = groupJson.getJSONObject(i)
+                val g = divisionJson.getJSONObject(i)
                 val n = g.getString("name")
                 if(recycleHashSet.contains(n))
                     throw (DivisionLayoutExecption(DivisionLayoutExecption.E15))
                 recycleHashSet.add(n)
                 makeGroup(n)
-                val gr = groupList[n]!!
+                val gr = divisionList[n]!!
                 gr.onJson()
                 if(!g.isNull("height")) gr.h = g.get("height")
                 else if(!g.isNull("top") || !g.isNull("bottom"))
@@ -487,12 +491,23 @@ class DivisionLayout : ViewGroup {
                 if(!g.isNull("left")) gr.l = g.get("left")
                 if(!g.isNull("right")) gr.r = g.get("right")
 
-                if(gr.h is String)
-                    gr.vu = stringToPx(gr.h as String)
-                else if (gr.h !is Number)
+                if(gr.h is String) {
+                    val s = gr.h as String
+                    gr.vu =
+                            if(s == Division.WRAP)
+                                verticalPxInDivisionMember(n,heightMeasureSpec)
+                            else
+                                stringToPx(s)
+                } else if (gr.h !is Number)
                     throw DivisionLayoutExecption(DivisionLayoutExecption.E12)
-                if(gr.w is String)
-                    gr.hu = stringToPx(gr.w as String)
+                if(gr.w is String) {
+                    val s = gr.w as String
+                    gr.hu =
+                            if(s == Division.WRAP)
+                                horizontalPxInDivisionMember(n,widthMeasureSpec)
+                            else
+                                stringToPx(gr.w as String)
+                }
                 else if (gr.w !is Number)
                     throw DivisionLayoutExecption(DivisionLayoutExecption.E12)
 
@@ -540,7 +555,7 @@ class DivisionLayout : ViewGroup {
                             catch = true
                         }
                     }
-                    if(catch) lateVerticalGroupJson.add(n)
+                    if(catch) lateVerticalDivisionJson.add(n)
                 }
                 else if(gr.t is Number && gr.b is Number) {
                     if(gr.vu == -1) {
@@ -599,7 +614,7 @@ class DivisionLayout : ViewGroup {
                             catch = true
                         }
                     }
-                    if(catch) lateHorizontalGroupJson.add(n)
+                    if(catch) lateHorizontalDivisionJson.add(n)
                 }
                 else if(gr.l is Number && gr.r is Number) {
                     if(gr.hu == -1) {
@@ -620,14 +635,14 @@ class DivisionLayout : ViewGroup {
 
         recycleHashSet.clear()
 
-        while (lateVerticalGroupJson.isNotEmpty())
-            setGroupVertical(lateVerticalGroupJson[0])
-        while (lateHorizontalGroupJson.isNotEmpty())
-            setGroupHorizontal(lateHorizontalGroupJson[0])
+        while (lateVerticalDivisionJson.isNotEmpty())
+            setDivisionVertical(lateVerticalDivisionJson[0])
+        while (lateHorizontalDivisionJson.isNotEmpty())
+            setDivisionHorizontal(lateHorizontalDivisionJson[0])
     }
 
     private fun makeGroup(name : String) {
-        if(!groupList.containsKey(name)) groupList[name] = G()
+        if(!divisionList.containsKey(name)) divisionList[name] = D()
     }
 
     private fun f(p : Int, v : Float, m : Float) : Int {
@@ -635,7 +650,7 @@ class DivisionLayout : ViewGroup {
         else (p/m*v).toInt()
     }
 
-    private fun attrGroupJsonObject(string : String) : JSONObject {
+    private fun attrDivisionJsonObject(string : String) : JSONObject {
         var st = string
         val result : JSONObject
         st = st.trim()
@@ -659,7 +674,7 @@ class DivisionLayout : ViewGroup {
         }
     }
 
-    private fun attrGroupJsonArray(string : String) : JSONArray {
+    private fun attrDivisionJsonArray(string : String) : JSONArray {
         var st = string
         val result : JSONArray
         st = st.trim()
@@ -715,8 +730,42 @@ class DivisionLayout : ViewGroup {
         return (a as Number).toFloat()
     }
 
-    private fun setGroupVertical(name : String) : G {
-        val g = groupList[name]!!
+    private fun verticalPxInDivisionMember(name : String, heightMeasureSpec: Int) : Int {
+        var result = 0
+        for(i in 0 until childCount) {
+            val c = getChildAt(i)
+            val lp = c.layoutParams as LayoutParams
+            if(lp.verticalDivision == name) {
+                lp.divTop = 0F; lp.divHeight = 0F; lp.divBottom = 0F
+                if (lp.height > 0) result += lp.height
+                else if (lp.height == ViewGroup.LayoutParams.WRAP_CONTENT) {
+                    c.measure(0, getChildMeasureSpec(heightMeasureSpec, 0, ViewGroup.LayoutParams.WRAP_CONTENT))
+                    result += c.measuredHeight
+                }
+            }
+        }
+        return result
+    }
+
+    private fun horizontalPxInDivisionMember(name : String, widthMeasureSpec: Int) : Int {
+        var result = 0
+        for(i in 0 until childCount) {
+            val c = getChildAt(i)
+            val lp = c.layoutParams as LayoutParams
+            if(lp.horizontalDivision == name) {
+                lp.divLeft = 0F; lp.divWidth = 0F; lp.divRight = 0F
+                if (lp.width > 0) result += lp.width
+                else if (lp.width == ViewGroup.LayoutParams.WRAP_CONTENT) {
+                    c.measure(getChildMeasureSpec(widthMeasureSpec, 0, ViewGroup.LayoutParams.WRAP_CONTENT), 0)
+                    result += c.measuredWidth
+                }
+            }
+        }
+        return result
+    }
+
+    private fun setDivisionVertical(name : String) : D {
+        val g = divisionList[name]!!
         if(g.t is String && g.vf == -1)
             g.vf = findVerticalValue(name, g.t as String)
         if(g.b is String && g.vl == -1)
@@ -742,12 +791,12 @@ class DivisionLayout : ViewGroup {
             else if (g.b is String && g.t is Number)
                 g.vf = g.vl - g.vv
         }
-        lateVerticalGroupJson.remove(name)
+        lateVerticalDivisionJson.remove(name)
         return g
     }
 
-    private fun setGroupHorizontal(name : String) : G {
-        val g = groupList[name]!!
+    private fun setDivisionHorizontal(name : String) : D {
+        val g = divisionList[name]!!
         if(g.l is String && g.hf == -1)
             g.hf = findHorizontalValue(name, g.l as String)
         if(g.r is String && g.hl == -1)
@@ -773,7 +822,7 @@ class DivisionLayout : ViewGroup {
             else if (g.r is String && g.l is Number)
                 g.hf = g.hl - g.hv
         }
-        lateHorizontalGroupJson.remove(name)
+        lateHorizontalDivisionJson.remove(name)
         return g
     }
 
@@ -783,8 +832,8 @@ class DivisionLayout : ViewGroup {
             throw ((DivisionLayoutExecption(DivisionLayoutExecption.E8)))
         if(t.size != 2)
             throw (DivisionLayoutExecption(DivisionLayoutExecption.E13))
-        val gl = groupList[t[0]]
-        if(gl == null)
+        val gl = divisionList[t[0]]
+        return if(gl == null || t[0] == LayoutParams.DEFAULT_DIVISION)
             throw(DivisionLayoutExecption(DivisionLayoutExecption.E10))
         else if(t[1] == "t" || t[1] == "top") {
             if(gl.vf == -1) {
@@ -792,13 +841,12 @@ class DivisionLayout : ViewGroup {
                     throw (DivisionLayoutExecption(DivisionLayoutExecption.E9))
                 recycleHashSet.add(t[0])
                 if(gl.t is String)
-                    return findVerticalValue(t[0], gl.t as String)
-                 else
-                    return  setGroupVertical(t[0]).vf
-
+                    findVerticalValue(t[0], gl.t as String)
+                else
+                    setDivisionVertical(t[0]).vf
             } else {
                 recycleHashSet.clear()
-                return gl.vf
+                gl.vf
             }
         }
         else if(t[1] == "b" || t[1] == "bottom") {
@@ -807,12 +855,12 @@ class DivisionLayout : ViewGroup {
                     throw (DivisionLayoutExecption(DivisionLayoutExecption.E9))
                 recycleHashSet.add(t[0])
                 if(gl.b is String)
-                    return findVerticalValue(t[0], gl.b as String)
+                    findVerticalValue(t[0], gl.b as String)
                 else
-                    return setGroupVertical(t[0]).vl
+                    setDivisionVertical(t[0]).vl
             } else {
                 recycleHashSet.clear()
-                return gl.vl
+                gl.vl
             }
         }
         else
@@ -825,8 +873,8 @@ class DivisionLayout : ViewGroup {
             throw ((DivisionLayoutExecption(DivisionLayoutExecption.E8)))
         if(t.size != 2)
             throw (DivisionLayoutExecption(DivisionLayoutExecption.E13))
-        val gl = groupList[t[0]]
-        if(gl == null)
+        val gl = divisionList[t[0]]
+        return if(gl == null || t[0] == LayoutParams.DEFAULT_DIVISION)
             throw(DivisionLayoutExecption(DivisionLayoutExecption.E10))
         else if(t[1] == "l" || t[1] == "left") {
             if(gl.hf == -1) {
@@ -834,12 +882,12 @@ class DivisionLayout : ViewGroup {
                     throw (DivisionLayoutExecption(DivisionLayoutExecption.E9))
                 recycleHashSet.add(t[0])
                 if(gl.l is String)
-                    return findHorizontalValue(t[0], gl.l as String)
+                    findHorizontalValue(t[0], gl.l as String)
                 else
-                    return setGroupHorizontal(t[0]).hf
+                    setDivisionHorizontal(t[0]).hf
             } else {
                 recycleHashSet.clear()
-                return gl.hf
+                gl.hf
             }
         }
         else if(t[1] == "r" || t[1] == "right") {
@@ -848,17 +896,18 @@ class DivisionLayout : ViewGroup {
                     throw (DivisionLayoutExecption(DivisionLayoutExecption.E9))
                 recycleHashSet.add(t[0])
                 if(gl.r is String)
-                    return findHorizontalValue(t[0], gl.r as String)
+                    findHorizontalValue(t[0], gl.r as String)
                  else
-                    return setGroupHorizontal(t[0]).hl
+                    setDivisionHorizontal(t[0]).hl
             } else {
                 recycleHashSet.clear()
-                return gl.hl
+                gl.hl
             }
         }
         else
             throw (DivisionLayoutExecption(DivisionLayoutExecption.E7))
     }
+
 
     override fun generateLayoutParams(attrs: AttributeSet): DivisionLayout.LayoutParams {
         return DivisionLayout.LayoutParams(context, attrs)
@@ -879,21 +928,21 @@ class DivisionLayout : ViewGroup {
     class LayoutParams : ViewGroup.LayoutParams {
 
         companion object {
-            const val DEFAULT_GROUP = ""
+            const val DEFAULT_DIVISION = ""
             const val DEFAULT_ORDER = 0
             const val DEFAULT_VALUE = 0F
         }
 
-        var verticalGroup = DEFAULT_GROUP
-        var horizontalGroup = DEFAULT_GROUP
+        var verticalDivision = DEFAULT_DIVISION
+        var horizontalDivision = DEFAULT_DIVISION
+        var verticalOrder = DEFAULT_ORDER
+        var horizontalOrder = DEFAULT_ORDER
         var divWidth = DEFAULT_VALUE
         var divHeight = DEFAULT_VALUE
         var divTop = DEFAULT_VALUE
         var divBottom = DEFAULT_VALUE
         var divLeft = DEFAULT_VALUE
         var divRight = DEFAULT_VALUE
-        var verticalOrder = DEFAULT_ORDER
-        var horizontalOrder = DEFAULT_ORDER
 
         internal var mc = false
         internal var mws = 0
@@ -905,32 +954,34 @@ class DivisionLayout : ViewGroup {
         internal var lb = 0
         internal var mw = 0
         internal var mh = 0
+        internal var matchHeight = -1
+        internal var matchWidth = -1
 
+        constructor(width : Int, height : Int) : super(width,height)
+        constructor(params: ViewGroup.LayoutParams) : super(params)
         constructor(context: Context?,attrs: AttributeSet?) : super(context,attrs) {
             context?.let { c -> attrs?.let { a -> setAttrs(c,a) } }
         }
-        constructor(width : Int, height : Int) : super(width,height)
-        constructor(params: ViewGroup.LayoutParams) : super(params)
 
         private fun setAttrs(context: Context, attrs: AttributeSet) {
             val ta = context.theme.obtainStyledAttributes(attrs,R.styleable.DivisionLayout_Layout,0,0)
 
-            ta.getString(R.styleable.DivisionLayout_Layout_division_vertical_group)?.let { verticalGroup = it }
-            ta.getString(R.styleable.DivisionLayout_Layout_division_horizontal_group)?.let { horizontalGroup = it }
-            divWidth = ta.getFloat(R.styleable.DivisionLayout_Layout_division_width,DEFAULT_VALUE)
-            divHeight = ta.getFloat(R.styleable.DivisionLayout_Layout_division_height,DEFAULT_VALUE)
-            divTop = ta.getFloat(R.styleable.DivisionLayout_Layout_division_top,DEFAULT_VALUE)
-            divBottom = ta.getFloat(R.styleable.DivisionLayout_Layout_division_bottom,DEFAULT_VALUE)
-            divLeft = ta.getFloat(R.styleable.DivisionLayout_Layout_division_left,DEFAULT_VALUE)
-            divRight = ta.getFloat(R.styleable.DivisionLayout_Layout_division_right,DEFAULT_VALUE)
-            verticalOrder = ta.getInt(R.styleable.DivisionLayout_Layout_division_vertical_order,DEFAULT_ORDER)
-            horizontalOrder = ta.getInt(R.styleable.DivisionLayout_Layout_division_horizontal_order,DEFAULT_ORDER)
+            ta.getString(R.styleable.DivisionLayout_Layout_vertical_div)?.let { verticalDivision = it }
+            ta.getString(R.styleable.DivisionLayout_Layout_horizontal_div)?.let { horizontalDivision = it }
+            divWidth = ta.getFloat(R.styleable.DivisionLayout_Layout_div_member_width,DEFAULT_VALUE)
+            divHeight = ta.getFloat(R.styleable.DivisionLayout_Layout_div_member_height,DEFAULT_VALUE)
+            divTop = ta.getFloat(R.styleable.DivisionLayout_Layout_div_member_top,DEFAULT_VALUE)
+            divBottom = ta.getFloat(R.styleable.DivisionLayout_Layout_div_member_bottom,DEFAULT_VALUE)
+            divLeft = ta.getFloat(R.styleable.DivisionLayout_Layout_div_member_left,DEFAULT_VALUE)
+            divRight = ta.getFloat(R.styleable.DivisionLayout_Layout_div_member_right,DEFAULT_VALUE)
+            verticalOrder = ta.getInt(R.styleable.DivisionLayout_Layout_vertical_div_order,DEFAULT_ORDER)
+            horizontalOrder = ta.getInt(R.styleable.DivisionLayout_Layout_vertical_div_order,DEFAULT_ORDER)
 
             ta.recycle()
         }
     }
 
-    private inner class G {
+    private inner class D {
         var va = 0F
         var vf = 0
         var vv = 0
