@@ -5,8 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:create_divisions="
-    { n:toolbar, h:wrap },
-    { n:main , t:toolbar.b, h:1, b:1 }
+    { n:toolbar ,h:wrap },
+    { n:main , t:toolbar.b, h:wrap }
     ">
     <Button
         android:layout_width="0dp"
@@ -15,7 +15,6 @@
         android:id="@+id/back"
         app:vertical_div="toolbar"
         app:horizontal_div="toolbar"
-        app:div_member_height="1"
         app:div_member_left="0.1"
         app:div_member_width="2"/>
     <TextView
@@ -25,9 +24,8 @@
         android:gravity="center"
         app:vertical_div="toolbar"
         app:horizontal_div="toolbar"
-        app:div_member_height="1"
         app:div_member_left="1"
-        app:div_member_width="4"/>
+        app:div_member_width="6"/>
     <Button
         android:layout_width="0dp"
         android:layout_height="match_parent"
@@ -39,6 +37,7 @@
         app:div_member_right="0.1"/>
     <TextView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:vertical_div="main" />
+        android:layout_height="wrap_content"
+        app:vertical_div="main"
+        android:text="hi"/>
 </app.dvkyun.divisionlayout.DivisionLayout>

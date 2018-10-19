@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<app.dvkyun.division_layout_demo.test xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:layout_editor_absoluteY="25dp">
+
+    <Button
+        android:id="@+id/back"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="back" />
+
+    <TextView
+        android:id="@+id/logo"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:text="Logo"
+        app:layout_constraintStart_toEndOf="@+id/back" />
+
+    <Button
+        android:id="@+id/menu"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_marginStart="8dp"
+        android:text="menu"
+        app:layout_constraintStart_toEndOf="@+id/logo" />
+
+    <TextView
+        android:id="@+id/main"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/back" />
+</app.dvkyun.division_layout_demo.test>
