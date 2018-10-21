@@ -4,9 +4,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:paddingTop="100dp"
     app:create_divisions="
     { n:toolbar ,h:wrap },
-    { n:main , t:toolbar.b, h:wrap }
+    { n:main , t:toolbar.b }
     ">
     <Button
         android:layout_width="0dp"
@@ -39,5 +40,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:vertical_div="main"
+        app:div_member_top="1"
         android:text="hi"/>
 </app.dvkyun.divisionlayout.DivisionLayout>

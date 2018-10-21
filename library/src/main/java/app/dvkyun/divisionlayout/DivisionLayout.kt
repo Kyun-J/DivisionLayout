@@ -2,12 +2,12 @@ package app.dvkyun.divisionlayout
 
 import android.content.Context
 import android.util.AttributeSet
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
+
 
 class DivisionLayout : ViewGroup {
 
@@ -264,67 +264,68 @@ class DivisionLayout : ViewGroup {
                 }
             }
             recycleHashSet.clear()
-            if (verticalWrapMode || horizontalWrapMode) {
-                for (i in 0 until childCount) {
-                    val c = getChildAt(i)
-                    val lp = c.layoutParams as LayoutParams
-                    if (verticalWrapMode) {
-                        divisionList[lp.verticalDivision]?.let {
-                            if(it.h.toString() == Division.WRAP && (lp.height == ViewGroup.LayoutParams.WRAP_CONTENT || lp.height > 0)) {
-                                c.measure(0, getChildMeasureSpec(heightMeasureSpec,verticalPadding(c),lp.height))
-                                mh += c.measuredHeight
-                            }
-                        }
-                    }
-                    if (horizontalWrapMode) {
-                        divisionList[lp.horizontalDivision]?.let {
-                            if(it.w.toString() == Division.WRAP && (lp.width == ViewGroup.LayoutParams.WRAP_CONTENT || lp.width > 0)) {
-                                c.measure(getChildMeasureSpec(widthMeasureSpec,horizontalPadding(c),lp.width), 0)
-                                mw += c.measuredWidth
-                            }
-                        }
-                    }
+            divisionList.forEach {
+                val n = it.key
+                val gr = it.value
+                if (gr.h is String) {
+                    val s = gr.h.toString()
+                    gr.vu =
+                            if (s == Division.WRAP)
+                                verticalPxInDivisionMember(n, heightMeasureSpec)
+                            else
+                                stringToPx(s)
+                } else if (gr.h !is Number)
+                    throw DivisionLayoutExecption(DivisionLayoutExecption.E12)
+                if (gr.w is String) {
+                    val s = gr.w as String
+                    gr.hu =
+                            if (s == Division.WRAP)
+                                horizontalPxInDivisionMember(n, widthMeasureSpec)
+                            else
+                                stringToPx(gr.w as String)
+                } else if (gr.w !is Number)
+                    throw DivisionLayoutExecption(DivisionLayoutExecption.E12)
+                if(verticalWrapMode) {
+                    if(gr.h is String)
+                        mh += gr.vu
+                    else gr.h = 0F
+                    if(gr.t is String) {
+                        try {
+                            mh += stringToPx(gr.t as String)
+                        } catch (e: DivisionLayoutExecption) { }
+                    } else if (gr.t is Number) gr.t = 0F
+                    if(gr.b is String) {
+                        try {
+                            mh += stringToPx(gr.b as String)
+                        } catch (e: DivisionLayoutExecption) { }
+                    } else if (gr.b is Number) gr.b = 0F
                 }
-                divisionList.forEach {
-                    val g = it.value
-                    if (verticalWrapMode) {
+                if(horizontalWrapMode) {
+                    if(gr.w is String)
+                        mw += gr.hu
+                    else gr.h = 0F
+                    if(gr.l is String) {
                         try {
-                            mh += stringToPx(g.t.toString())
-                        } catch (e: DivisionLayoutExecption) {
-                            if (g.t is Number) g.t = 0F
-                        }
+                            mw += stringToPx(gr.l as String)
+                        } catch (e: DivisionLayoutExecption) { }
+                    } else if (gr.l is Number) gr.l = 0F
+                    if(gr.r is String) {
                         try {
-                            mh += stringToPx(g.h.toString())
-                        } catch (e: DivisionLayoutExecption) {
-                            if (g.h is Number) g.h = 0F
-                        }
-                        try {
-                            mh += stringToPx(g.b.toString())
-                        } catch (e: DivisionLayoutExecption) {
-                            if (g.b is Number) g.b = 0F
-                        }
-                    }
-                    if (horizontalWrapMode) {
-                        try {
-                            mw += stringToPx(g.l.toString())
-                        } catch (e: DivisionLayoutExecption) {
-                            if (g.l is Number) g.l = 0F
-                        }
-                        try {
-                            mw += stringToPx(g.w.toString())
-                        } catch (e: DivisionLayoutExecption) {
-                            if (g.w is Number) g.w = 0F
-                        }
-                        try {
-                            mw += stringToPx(g.r.toString())
-                        } catch (e: DivisionLayoutExecption) {
-                            if (g.r is Number) g.r = 0F
-                        }
-                    }
+                            mw += stringToPx(gr.r as String)
+                        } catch (e: DivisionLayoutExecption) { }
+                    } else if (gr.r is Number) gr.r = 0F
                 }
             }
-            mh += paddingTop + paddingBottom
-            mw += paddingStart + paddingEnd
+            if(verticalWrapMode) {
+                mh += paddingTop + paddingBottom
+                val dh = View.getDefaultSize(suggestedMinimumHeight,heightMeasureSpec)
+                if(mh > dh) mh = dh
+            }
+            if(horizontalWrapMode) {
+                mw += paddingStart + paddingEnd
+                val dw = View.getDefaultSize(suggestedMinimumWidth,widthMeasureSpec)
+                if(mw > dw) mw = dw
+            }
             setMeasuredDimension(mw, mh)
             measureWithDivision(widthMeasureSpec, heightMeasureSpec)
         } else {
@@ -334,67 +335,68 @@ class DivisionLayout : ViewGroup {
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
         for (g in divisionList.values) {
-            var lv = g.vf
+            var lv = g.vf + paddingTop
             g.verticalList.forEach {
                 val c = getChildAt(it)
                 val lp = c.layoutParams as DivisionLayout.LayoutParams
                 if (lp.height == ViewGroup.LayoutParams.MATCH_PARENT) {
-                    lp.lt = g.vf + l
-                    lp.lb = g.vl
+                    lp.layoutTop = g.vf + paddingTop
+                    lp.layoutBottom = g.vl + paddingTop
+
                 } else {
-                    lp.lt = lv + f(g.vv, lp.divTop, g.va)
-                    lp.lb = lp.lt + lp.mh
-                    lv = lp.lb + f(g.vv, lp.divBottom, g.va)
+                    lp.layoutTop = lv + f(g.vv, lp.divTop, g.va)
+                    lp.layoutBottom = lp.layoutTop + c.measuredHeight
+                    lv = lp.layoutBottom + f(g.vv, lp.divBottom, g.va)
                 }
-                if (lp.lc) {
-                    c.layout(lp.ll, lp.lt, lp.lr, lp.lb)
-                    lp.lc = false
-                } else lp.lc = true
+                if (lp.layoutCheck) {
+                    c.layout(lp.layoutLeft, lp.layoutTop, lp.layoutRight, lp.layoutBottom)
+                    lp.layoutCheck = false
+                } else lp.layoutCheck = true
             }
-            var lh = g.hf
+            var lh = g.hf + paddingLeft
             g.horizontalList.forEach {
                 val c = getChildAt(it)
                 val lp = c.layoutParams as DivisionLayout.LayoutParams
                 if (lp.width == ViewGroup.LayoutParams.MATCH_PARENT) {
-                    lp.ll = g.hf
-                    lp.lr = g.hl
+                    lp.layoutLeft = g.hf + paddingLeft
+                    lp.layoutRight = g.hl + paddingLeft
                 } else {
-                    lp.ll = lh + f(g.hv, lp.divLeft, g.ha)
-                    lp.lr = lp.ll + lp.mw
-                    lh = lp.lr + f(g.hv, lp.divRight, g.ha)
+                    lp.layoutLeft = lh + f(g.hv, lp.divLeft, g.ha)
+                    lp.layoutRight = lp.layoutLeft + c.measuredWidth
+                    lh = lp.layoutRight + f(g.hv, lp.divRight, g.ha)
                 }
-                if (lp.lc) {
-                    c.layout(lp.ll, lp.lt, lp.lr, lp.lb)
-                    lp.lc = false
-                } else lp.lc = true
+                if (lp.layoutCheck) {
+                    c.layout(lp.layoutLeft, lp.layoutTop, lp.layoutRight, lp.layoutBottom)
+                    lp.layoutCheck = false
+                } else lp.layoutCheck = true
             }
         }
         defaultVerticalDivision.forEach {
             val c = getChildAt(it)
             val lp = c.layoutParams as DivisionLayout.LayoutParams
             val m = lp.divTop + lp.divBottom
-            lp.lt = f(measuredHeight - lp.mh, lp.divTop, m)
-            lp.lb = lp.lt + lp.mh
-            if (lp.lc) {
-                c.layout(lp.ll, lp.lt, lp.lr, lp.lb)
-                lp.lc = false
-            } else lp.lc = true
+            lp.layoutTop = f(measuredHeight - c.measuredHeight, lp.divTop, m)
+            lp.layoutBottom = lp.layoutTop + c.measuredHeight
+            if (lp.layoutCheck) {
+                c.layout(lp.layoutLeft, lp.layoutTop, lp.layoutRight, lp.layoutBottom)
+                lp.layoutCheck = false
+            } else lp.layoutCheck = true
         }
         defaultHorizontalDivision.forEach {
             val c = getChildAt(it)
             val lp = c.layoutParams as DivisionLayout.LayoutParams
             val m = lp.divLeft + lp.divRight
-            lp.ll = f(measuredWidth - lp.mw, lp.divLeft, m)
-            lp.lr = lp.ll + lp.mw
-            if (lp.lc) {
-                c.layout(lp.ll, lp.lt, lp.lr, lp.lb)
-                lp.lc = false
+            lp.layoutLeft = f(measuredWidth - c.measuredWidth, lp.divLeft, m)
+            lp.layoutRight = lp.layoutLeft + c.measuredWidth
+            if (lp.layoutCheck) {
+                c.layout(lp.layoutLeft, lp.layoutTop, lp.layoutRight, lp.layoutBottom)
+                lp.layoutCheck = false
             }
         }
     }
 
     private fun measureWithDivision(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        divisionJsonSet(widthMeasureSpec, heightMeasureSpec)
+        divisionJsonSet()
         for (i in 0 until childCount) {
             val c = getChildAt(i)
             val lp = c.layoutParams as DivisionLayout.LayoutParams
@@ -420,24 +422,24 @@ class DivisionLayout : ViewGroup {
                             lp.divTop + lp.divHeight + lp.divBottom
                         else
                             lp.divTop + lp.divBottom
-                val s = getChildMeasureSpec(heightMeasureSpec, verticalPadding(c), lp.height)
+                val s = getChildMeasureSpec(heightMeasureSpec, verticalPadding(), lp.height)
                 if (lp.height == ViewGroup.LayoutParams.MATCH_PARENT)
-                    lp.mhs = getChildMeasureSpec(heightMeasureSpec, verticalPadding(c), vg.vl - vg.vf)
+                    lp.measureHeightSpec = getChildMeasureSpec(heightMeasureSpec, verticalPadding(), vg.vl - vg.vf)
                 else if (lp.height == ViewGroup.LayoutParams.WRAP_CONTENT) {
                     c.measure(0, s)
                     if (vg.vv > c.measuredHeight) {
                         vg.vv -= c.measuredHeight
-                        lp.mhs = s
+                        lp.measureHeightSpec = s
                     } else {
-                        lp.mhs = getChildMeasureSpec(heightMeasureSpec, verticalPadding(c), vg.vv)
+                        lp.measureHeightSpec = getChildMeasureSpec(heightMeasureSpec, verticalPadding(), vg.vv)
                         vg.vv = 0
                     }
                 } else if (lp.height > 0) {
                     if (vg.vv > lp.height) {
                         vg.vv -= lp.height
-                        lp.mhs = s
+                        lp.measureHeightSpec = s
                     } else {
-                        lp.mhs = getChildMeasureSpec(heightMeasureSpec, verticalPadding(c), vg.vv)
+                        lp.measureHeightSpec = getChildMeasureSpec(heightMeasureSpec, verticalPadding(), vg.vv)
                         vg.vv = 0
                     }
                 }
@@ -455,24 +457,24 @@ class DivisionLayout : ViewGroup {
                             lp.divLeft + lp.divWidth + lp.divRight
                         else
                             lp.divLeft + lp.divRight
-                val s = getChildMeasureSpec(widthMeasureSpec, horizontalPadding(c), lp.width)
+                val s = getChildMeasureSpec(widthMeasureSpec, horizontalPadding(), lp.width)
                 if (lp.width == ViewGroup.LayoutParams.MATCH_PARENT)
-                    lp.mws = getChildMeasureSpec(widthMeasureSpec, horizontalPadding(c), hg.hl - hg.hf)
+                    lp.measureWidthSpec = getChildMeasureSpec(widthMeasureSpec, horizontalPadding(), hg.hl - hg.hf)
                 else if (lp.width == ViewGroup.LayoutParams.WRAP_CONTENT) {
                     c.measure(s, 0)
                     if (hg.hv > c.measuredWidth) {
                         hg.hv -= c.measuredWidth
-                        lp.mws = s
+                        lp.measureWidthSpec = s
                     } else {
-                        lp.mws = getChildMeasureSpec(widthMeasureSpec, horizontalPadding(c), hg.hv)
+                        lp.measureWidthSpec = getChildMeasureSpec(widthMeasureSpec, horizontalPadding(), hg.hv)
                         hg.hv = 0
                     }
                 } else if (lp.width > 0) {
                     if (hg.hv > lp.width) {
                         hg.hv -= lp.width
-                        lp.mws = s
+                        lp.measureWidthSpec = s
                     } else {
-                        lp.mws = getChildMeasureSpec(widthMeasureSpec, horizontalPadding(c), hg.hv)
+                        lp.measureWidthSpec = getChildMeasureSpec(widthMeasureSpec, horizontalPadding(), hg.hv)
                         hg.hv = 0
                     }
                 }
@@ -498,86 +500,60 @@ class DivisionLayout : ViewGroup {
                 val c = getChildAt(it)
                 val lp = c.layoutParams as DivisionLayout.LayoutParams
                 if (lp.height == 0)
-                    lp.mhs = getChildMeasureSpec(heightMeasureSpec, verticalPadding(c), f(g.vv, lp.divHeight, g.va))
-                if (lp.mc) {
-                    c.measure(lp.mws, lp.mhs)
-                    lp.mw = c.measuredWidth
-                    lp.mh = c.measuredHeight
-                    lp.mc = false
+                    lp.measureHeightSpec = getChildMeasureSpec(heightMeasureSpec, verticalPadding(), f(g.vv, lp.divHeight, g.va))
+                if (lp.measureCheck) {
+                    c.measure(lp.measureWidthSpec, lp.measureHeightSpec)
+                    lp.measureCheck = false
                 } else
-                    lp.mc = true
+                    lp.measureCheck = true
             }
             g.horizontalList.forEach {
                 val c = getChildAt(it)
                 val lp = c.layoutParams as DivisionLayout.LayoutParams
                 if (lp.width == 0)
-                    lp.mws = getChildMeasureSpec(widthMeasureSpec, horizontalPadding(c), f(g.hv, lp.divWidth, g.ha))
-                if (lp.mc) {
-                    c.measure(lp.mws, lp.mhs)
-                    lp.mw = c.measuredWidth
-                    lp.mh = c.measuredHeight
+                    lp.measureWidthSpec = getChildMeasureSpec(widthMeasureSpec, horizontalPadding(), f(g.hv, lp.divWidth, g.ha))
+                if (lp.measureCheck) {
+                    c.measure(lp.measureWidthSpec, lp.measureHeightSpec)
                 } else
-                    lp.mc = true
+                    lp.measureCheck = true
             }
         }
         defaultVerticalDivision.forEach {
             val c = getChildAt(it)
             val lp = c.layoutParams as DivisionLayout.LayoutParams
-            lp.mhs = when (lp.height) {
-                ViewGroup.LayoutParams.MATCH_PARENT -> getChildMeasureSpec(heightMeasureSpec, verticalPadding(c), measuredHeight)
-                0 -> getChildMeasureSpec(heightMeasureSpec, verticalPadding(c), f(measuredHeight, lp.divHeight, lp.divTop + lp.divHeight + lp.divBottom))
-                else -> getChildMeasureSpec(heightMeasureSpec, verticalPadding(c), lp.height)
+            lp.measureHeightSpec = when (lp.height) {
+                ViewGroup.LayoutParams.MATCH_PARENT -> getChildMeasureSpec(heightMeasureSpec, verticalPadding(), measuredHeight)
+                0 -> getChildMeasureSpec(heightMeasureSpec, verticalPadding(), f(measuredHeight, lp.divHeight, lp.divTop + lp.divHeight + lp.divBottom))
+                else -> getChildMeasureSpec(heightMeasureSpec, verticalPadding(), lp.height)
             }
-            if (lp.mc) {
-                c.measure(lp.mws, lp.mhs)
-                lp.mw = c.measuredWidth
-                lp.mh = c.measuredHeight
-                lp.mc = false
+            if (lp.measureCheck) {
+                c.measure(lp.measureWidthSpec, lp.measureHeightSpec)
+                lp.measureCheck = false
             } else
-                lp.mc = true
+                lp.measureCheck = true
         }
         defaultHorizontalDivision.forEach {
             val c = getChildAt(it)
             val lp = c.layoutParams as DivisionLayout.LayoutParams
-            lp.mws = when (lp.width) {
-                ViewGroup.LayoutParams.MATCH_PARENT -> getChildMeasureSpec(widthMeasureSpec, horizontalPadding(c), measuredWidth)
-                0 -> getChildMeasureSpec(widthMeasureSpec, horizontalPadding(c), f(measuredWidth, lp.divWidth, lp.divLeft + lp.divWidth + lp.divRight))
-                else -> getChildMeasureSpec(widthMeasureSpec, horizontalPadding(c), lp.width)
+            lp.measureWidthSpec = when (lp.width) {
+                ViewGroup.LayoutParams.MATCH_PARENT -> getChildMeasureSpec(widthMeasureSpec, horizontalPadding(), measuredWidth)
+                0 -> getChildMeasureSpec(widthMeasureSpec, horizontalPadding(), f(measuredWidth, lp.divWidth, lp.divLeft + lp.divWidth + lp.divRight))
+                else -> getChildMeasureSpec(widthMeasureSpec, horizontalPadding(), lp.width)
             }
-            if (lp.mc) {
-                c.measure(lp.mws, lp.mhs)
-                lp.mw = c.measuredWidth
-                lp.mh = c.measuredHeight
-                lp.mc = false
+            if (lp.measureCheck) {
+                c.measure(lp.measureWidthSpec, lp.measureHeightSpec)
+                lp.measureCheck = false
             }
         }
     }
 
-    private fun divisionJsonSet(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+    private fun divisionJsonSet() {
         lateVerticalDivisionJson.clear()
         lateHorizontalDivisionJson.clear()
 
         divisionList.forEach {
             val n = it.key
             val gr = it.value
-            if (gr.h is String) {
-                val s = gr.h.toString()
-                gr.vu =
-                        if (s == Division.WRAP)
-                            verticalPxInDivisionMember(n, heightMeasureSpec)
-                        else
-                            stringToPx(s)
-            } else if (gr.h !is Number)
-                throw DivisionLayoutExecption(DivisionLayoutExecption.E12)
-            if (gr.w is String) {
-                val s = gr.w as String
-                gr.hu =
-                        if (s == Division.WRAP)
-                            horizontalPxInDivisionMember(n, widthMeasureSpec)
-                        else
-                            stringToPx(gr.w as String)
-            } else if (gr.w !is Number)
-                throw DivisionLayoutExecption(DivisionLayoutExecption.E12)
 
             if (gr.t is String || gr.b is String) {
                 var catch = false
@@ -711,14 +687,14 @@ class DivisionLayout : ViewGroup {
         else (p/m*v).toInt()
     }
 
-    private fun verticalPadding(v : View) : Int {
-        return v.paddingTop + v.paddingBottom
+    private fun verticalPadding() : Int {
+        return paddingTop + paddingBottom
     }
 
-    private fun horizontalPadding(v : View) : Int {
-        return v.paddingStart + v.paddingEnd
+    private fun horizontalPadding() : Int {
+        return paddingLeft + paddingRight
     }
-
+    
     private fun attrDivisionJsonObject(string : String) : JSONObject {
         var st = string
         val result : JSONObject
@@ -808,7 +784,7 @@ class DivisionLayout : ViewGroup {
                 lp.divTop = 0F; lp.divHeight = 0F; lp.divBottom = 0F
                 if (lp.height > 0) result += lp.height
                 else if (lp.height == ViewGroup.LayoutParams.WRAP_CONTENT) {
-                    c.measure(0, getChildMeasureSpec(heightMeasureSpec, verticalPadding(c), ViewGroup.LayoutParams.WRAP_CONTENT))
+                    c.measure(0, getChildMeasureSpec(heightMeasureSpec, verticalPadding(), ViewGroup.LayoutParams.WRAP_CONTENT))
                     result += c.measuredHeight
                 }
             }
@@ -825,7 +801,7 @@ class DivisionLayout : ViewGroup {
                 lp.divLeft = 0F; lp.divWidth = 0F; lp.divRight = 0F
                 if (lp.width > 0) result += lp.width
                 else if (lp.width == ViewGroup.LayoutParams.WRAP_CONTENT) {
-                    c.measure(getChildMeasureSpec(widthMeasureSpec, horizontalPadding(c), ViewGroup.LayoutParams.WRAP_CONTENT), 0)
+                    c.measure(getChildMeasureSpec(widthMeasureSpec, horizontalPadding(), ViewGroup.LayoutParams.WRAP_CONTENT), 0)
                     result += c.measuredWidth
                 }
             }
@@ -994,7 +970,7 @@ class DivisionLayout : ViewGroup {
         return p is DivisionLayout.LayoutParams
     }
 
-    class LayoutParams : ViewGroup.LayoutParams {
+    class LayoutParams : ViewGroup.MarginLayoutParams {
 
         companion object {
             const val DEFAULT_DIVISION = ""
@@ -1013,16 +989,14 @@ class DivisionLayout : ViewGroup {
         var divLeft = DEFAULT_VALUE
         var divRight = DEFAULT_VALUE
 
-        internal var mc = false
-        internal var mws = 0
-        internal var mhs = 0
-        internal var lc = false
-        internal var ll = 0
-        internal var lt = 0
-        internal var lr = 0
-        internal var lb = 0
-        internal var mw = 0
-        internal var mh = 0
+        internal var measureCheck = false
+        internal var measureWidthSpec = 0
+        internal var measureHeightSpec = 0
+        internal var layoutCheck = false
+        internal var layoutLeft = 0
+        internal var layoutTop = 0
+        internal var layoutRight = 0
+        internal var layoutBottom = 0
 
         constructor(width : Int, height : Int) : super(width,height)
         constructor(params: ViewGroup.LayoutParams) : super(params)
