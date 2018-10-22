@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<app.dvkyun.divisionlayout.DivisionLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:create_division_1="n:div, t:200dp, b:200dp, l:2, w:5, r:1.8">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="div"
+        android:gravity="center"
+        android:textSize="30sp"
+        android:background="#ffff80"
+        app:horizontal_div="div"
+        app:vertical_div="div"/>
+
+</app.dvkyun.divisionlayout.DivisionLayout>

@@ -12,6 +12,10 @@
         <attr name="horizontal_div" format="string"/>
         <attr name="vertical_div_order" format="integer"/>
         <attr name="horizontal_div_order" format="integer"/>
+        <attr name="div_marginTop" format="string|dimension"/>
+        <attr name="div_marginBottom" format="string|dimension"/>
+        <attr name="div_marginStart" format="string|dimension"/>
+        <attr name="div_marginEnd" format="string|dimension"/>
     </declare-styleable>
 
     <declare-styleable name="DivisionLayout">

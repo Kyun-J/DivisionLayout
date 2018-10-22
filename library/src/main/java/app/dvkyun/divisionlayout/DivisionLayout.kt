@@ -33,6 +33,9 @@ class DivisionLayout : ViewGroup {
     private var verticalMatchMode = false
     private var horizontalMatchMode = false
 
+    private var contentsHeight = 0
+    private var contentsWidth = 0
+
     private var isAttach = false
 
     constructor(context: Context?) : this(context, null)
@@ -47,7 +50,7 @@ class DivisionLayout : ViewGroup {
                     try {
                         divisionJson = attrDivisionJsonArray(it)
                     } catch (e: JSONException) {
-                        throw(DivisionLayoutExecption(DivisionLayoutExecption.E1, e))
+                        throw(DivisionLayoutException(DivisionLayoutException.E1, e))
                     }
                 }.let {
                     if (it == null) divisionJson = JSONArray()
@@ -57,7 +60,7 @@ class DivisionLayout : ViewGroup {
                         try {
                             divisionJson.put(attrDivisionJsonObject(it))
                         } catch (e: JSONException) {
-                            throw(DivisionLayoutExecption(DivisionLayoutExecption.E1, e))
+                            throw(DivisionLayoutException(DivisionLayoutException.E1, e))
                         }
                     }
                 }
@@ -74,8 +77,8 @@ class DivisionLayout : ViewGroup {
 
     /*
     *
-    * return division by name.
-    * this function can return null.
+    * Return a single division by name.
+    * This function can return null.
     *
     * */
     fun getDivision(name: String): Division? {
@@ -99,7 +102,7 @@ class DivisionLayout : ViewGroup {
 
     /*
     *
-    * return all divisions as Collection<Division>
+    * Return all divisions as Collection<Division>
     *
     * */
     fun getAllDivision(): Collection<Division> {
@@ -122,7 +125,68 @@ class DivisionLayout : ViewGroup {
 
     /*
     *
-    * reset all divisions by Iterable<Division>
+    * Add or reset a singe division in DivisionLayout
+    * To apply division, you must call notifyDivisionChanged()
+    *
+    * */
+    fun addDivision(division: Division) {
+        try {
+            var f = -1
+            for (i in 0 until divisionJson.length()) {
+                if (division.name == divisionJson.getJSONObject(i).getString("name")) {
+                    f = i
+                    break
+                }
+            }
+            val go = JSONObject()
+            go.put("name", division.name)
+            go.put("top", division.top)
+            go.put("height", division.height)
+            go.put("bottom", division.bottom)
+            go.put("left", division.left)
+            go.put("width", division.width)
+            go.put("right", division.right)
+            if (f != -1) divisionJson.put(f, go)
+            else divisionJson.put(go)
+            calledDivision[division.name] = division
+        } catch (e: JSONException) {
+            throw(DivisionLayoutException(DivisionLayoutException.E2, e))
+        }
+    }
+
+    /*
+    *
+    * Add or reset divisions in DivisionLayout
+    * To apply division, you must call notifyDivisionChanged()
+    *
+    * */
+    fun addDivisions(list: Iterable<Division>) {
+        try {
+            val gl = JSONArray()
+            for (a in list) {
+                if (a.name != LayoutParams.DEFAULT_DIVISION) {
+                    val go = JSONObject()
+                    go.put("name", a.name)
+                    go.put("top", a.top)
+                    go.put("height", a.height)
+                    go.put("bottom", a.bottom)
+                    go.put("left", a.left)
+                    go.put("width", a.width)
+                    go.put("right", a.right)
+                    gl.put(go)
+                    calledDivision[a.name] = a
+                }
+            }
+            divisionJson = gl
+        } catch (e: JSONException) {
+            throw(DivisionLayoutException(DivisionLayoutException.E2, e))
+        }
+    }
+
+
+    /*
+    *
+    * Reset all divisions by Iterable<Division>
     * When this function is successfully called, it redraws the layout
     *
     * */
@@ -146,13 +210,13 @@ class DivisionLayout : ViewGroup {
             calledDivision.clear()
             requestLayout()
         } catch (e: JSONException) {
-            throw(DivisionLayoutExecption(DivisionLayoutExecption.E2, e))
+            throw(DivisionLayoutException(DivisionLayoutException.E2, e))
         }
     }
 
     /*
     *
-    * reset or add a single division
+    * Reset or add a single division
     * When this function is successfully called, it redraws the layout
     *
     * */
@@ -178,7 +242,60 @@ class DivisionLayout : ViewGroup {
             calledDivision.remove(division.name)
             requestLayout()
         } catch (e: JSONException) {
-            throw(DivisionLayoutExecption(DivisionLayoutExecption.E2, e))
+            throw(DivisionLayoutException(DivisionLayoutException.E2, e))
+        }
+    }
+
+    /*
+    *
+    * Remove attribute in a single division
+    * If division is removed, it is automatically generated again if there is a child view that uses division,
+    * so this function only removes division's properties.
+    * When this function is successfully called, it redraws the layout
+    *
+    * */
+    fun removeDivision(name: String) {
+        try {
+            val result = JSONArray()
+            for (i in 0 until divisionJson.length()) {
+                if (name != divisionJson.getJSONObject(i).getString("name")) {
+                    result.put(divisionJson.get(i))
+                }
+            }
+            divisionJson = result
+            calledDivision.remove(name)
+            requestLayout()
+        } catch (e: JSONException) {
+            throw(DivisionLayoutException(DivisionLayoutException.E2, e))
+        }
+    }
+
+    /*
+    *
+    * Remove attribute in divisions
+    * If division is removed, it is automatically generated again if there is a child view that uses division,
+    * so this function only removes division's properties.
+    * When this function is successfully called, it redraws the layout
+    *
+    * */
+    fun removeDivisions(list : Iterable<Division>) {
+        try {
+            val result = JSONArray()
+            for (i in 0 until divisionJson.length()) {
+                var g = false
+                list.forEach {
+                    if (it.name == divisionJson.getJSONObject(i).getString("name")) {
+                        g = true
+                        calledDivision.remove(it.name)
+                        return@forEach
+                    }
+                }
+                if(!g) result.put(divisionJson.get(i))
+            }
+            divisionJson = result
+            requestLayout()
+        } catch (e: JSONException) {
+            throw(DivisionLayoutException(DivisionLayoutException.E2, e))
         }
     }
 
@@ -207,15 +324,9 @@ class DivisionLayout : ViewGroup {
             calledDivision.clear()
             requestLayout()
         } catch (e: JSONException) {
-            throw(DivisionLayoutExecption(DivisionLayoutExecption.E2, e))
+            throw(DivisionLayoutException(DivisionLayoutException.E2, e))
         }
     }
-
-    /*
-    *
-    * private methods
-    *
-    * */
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
@@ -242,9 +353,11 @@ class DivisionLayout : ViewGroup {
             for (i in 0 until divisionJson.length()) {
                 try {
                     val g = divisionJson.getJSONObject(i)
+                    if(g.isNull("name") || g.getString("name") == "")
+                        throw(DivisionLayoutException(DivisionLayoutException.E14))
                     val n = g.getString("name")
                     if (recycleHashSet.contains(n))
-                        throw (DivisionLayoutExecption(DivisionLayoutExecption.E15))
+                        throw (DivisionLayoutException(DivisionLayoutException.E15))
                     recycleHashSet.add(n)
                     makeGroup(n)
                     val gr = divisionList[n]!!
@@ -260,7 +373,7 @@ class DivisionLayout : ViewGroup {
                     if (g.isNull("width") && !((gr.l is String && g.isNull("right")) || (gr.r is String && g.isNull("left")) || (gr.l is String && gr.r is String)))
                         gr.w = 0F
                 } catch (e: JSONException) {
-                    throw DivisionLayoutExecption(DivisionLayoutExecption.E3)
+                    throw DivisionLayoutException(DivisionLayoutException.E3)
                 }
             }
             recycleHashSet.clear()
@@ -275,7 +388,7 @@ class DivisionLayout : ViewGroup {
                             else
                                 stringToPx(s)
                 } else if (gr.h !is Number)
-                    throw DivisionLayoutExecption(DivisionLayoutExecption.E12)
+                    throw DivisionLayoutException(DivisionLayoutException.E12)
                 if (gr.w is String) {
                     val s = gr.w as String
                     gr.hu =
@@ -284,7 +397,7 @@ class DivisionLayout : ViewGroup {
                             else
                                 stringToPx(gr.w as String)
                 } else if (gr.w !is Number)
-                    throw DivisionLayoutExecption(DivisionLayoutExecption.E12)
+                    throw DivisionLayoutException(DivisionLayoutException.E12)
                 if(verticalWrapMode) {
                     if(gr.h is String)
                         mh += gr.vu
@@ -292,12 +405,12 @@ class DivisionLayout : ViewGroup {
                     if(gr.t is String) {
                         try {
                             mh += stringToPx(gr.t as String)
-                        } catch (e: DivisionLayoutExecption) { }
+                        } catch (e: DivisionLayoutException) { }
                     } else if (gr.t is Number) gr.t = 0F
                     if(gr.b is String) {
                         try {
                             mh += stringToPx(gr.b as String)
-                        } catch (e: DivisionLayoutExecption) { }
+                        } catch (e: DivisionLayoutException) { }
                     } else if (gr.b is Number) gr.b = 0F
                 }
                 if(horizontalWrapMode) {
@@ -307,12 +420,12 @@ class DivisionLayout : ViewGroup {
                     if(gr.l is String) {
                         try {
                             mw += stringToPx(gr.l as String)
-                        } catch (e: DivisionLayoutExecption) { }
+                        } catch (e: DivisionLayoutException) { }
                     } else if (gr.l is Number) gr.l = 0F
                     if(gr.r is String) {
                         try {
                             mw += stringToPx(gr.r as String)
-                        } catch (e: DivisionLayoutExecption) { }
+                        } catch (e: DivisionLayoutException) { }
                     } else if (gr.r is Number) gr.r = 0F
                 }
             }
@@ -326,6 +439,8 @@ class DivisionLayout : ViewGroup {
                 val dw = View.getDefaultSize(suggestedMinimumWidth,widthMeasureSpec)
                 if(mw > dw) mw = dw
             }
+            contentsHeight = mh - paddingTop - paddingBottom
+            contentsWidth = mw - paddingStart - paddingEnd
             setMeasuredDimension(mw, mh)
             measureWithDivision(widthMeasureSpec, heightMeasureSpec)
         } else {
@@ -375,7 +490,7 @@ class DivisionLayout : ViewGroup {
             val c = getChildAt(it)
             val lp = c.layoutParams as DivisionLayout.LayoutParams
             val m = lp.divTop + lp.divBottom
-            lp.layoutTop = f(measuredHeight - c.measuredHeight, lp.divTop, m)
+            lp.layoutTop = f(contentsHeight - c.measuredHeight, lp.divTop, m) + paddingTop
             lp.layoutBottom = lp.layoutTop + c.measuredHeight
             if (lp.layoutCheck) {
                 c.layout(lp.layoutLeft, lp.layoutTop, lp.layoutRight, lp.layoutBottom)
@@ -386,7 +501,7 @@ class DivisionLayout : ViewGroup {
             val c = getChildAt(it)
             val lp = c.layoutParams as DivisionLayout.LayoutParams
             val m = lp.divLeft + lp.divRight
-            lp.layoutLeft = f(measuredWidth - c.measuredWidth, lp.divLeft, m)
+            lp.layoutLeft = f(contentsWidth - c.measuredWidth, lp.divLeft, m) + paddingStart
             lp.layoutRight = lp.layoutLeft + c.measuredWidth
             if (lp.layoutCheck) {
                 c.layout(lp.layoutLeft, lp.layoutTop, lp.layoutRight, lp.layoutBottom)
@@ -395,17 +510,23 @@ class DivisionLayout : ViewGroup {
         }
     }
 
+    /*
+    *
+    * private methods
+    *
+    * */
+
     private fun measureWithDivision(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         divisionJsonSet()
         for (i in 0 until childCount) {
             val c = getChildAt(i)
             val lp = c.layoutParams as DivisionLayout.LayoutParams
             if (lp.verticalOrder > childCount || lp.horizontalOrder > childCount)
-                throw DivisionLayoutExecption("Order can not be greater than the number of views.")
+                throw DivisionLayoutException("Order can not be greater than the number of views.")
             if (lp.divWidth < 0 || lp.divHeight < 0 || lp.divTop < 0 || lp.divBottom < 0 || lp.divLeft < 0 || lp.divRight < 0)
-                throw DivisionLayoutExecption("Value must be greater than -1.")
+                throw DivisionLayoutException("Value must be greater than -1.")
             if (lp.verticalOrder < LayoutParams.DEFAULT_ORDER || lp.horizontalOrder < LayoutParams.DEFAULT_ORDER)
-                throw DivisionLayoutExecption("Order must be greater than " + LayoutParams.DEFAULT_ORDER.toString() + ".")
+                throw DivisionLayoutException("Order must be greater than " + LayoutParams.DEFAULT_ORDER.toString() + ".")
             makeGroup(lp.verticalDivision); makeGroup(lp.horizontalDivision)
             val vg = divisionList[lp.verticalDivision]!!
             val hg = divisionList[lp.horizontalDivision]!!
@@ -422,16 +543,16 @@ class DivisionLayout : ViewGroup {
                             lp.divTop + lp.divHeight + lp.divBottom
                         else
                             lp.divTop + lp.divBottom
-                val s = getChildMeasureSpec(heightMeasureSpec, verticalPadding(), lp.height)
+                val s = getChildMeasureSpec(heightMeasureSpec, 0, lp.height)
                 if (lp.height == ViewGroup.LayoutParams.MATCH_PARENT)
-                    lp.measureHeightSpec = getChildMeasureSpec(heightMeasureSpec, verticalPadding(), vg.vl - vg.vf)
+                    lp.measureHeightSpec = getChildMeasureSpec(heightMeasureSpec, 0, vg.vl - vg.vf)
                 else if (lp.height == ViewGroup.LayoutParams.WRAP_CONTENT) {
                     c.measure(0, s)
                     if (vg.vv > c.measuredHeight) {
                         vg.vv -= c.measuredHeight
                         lp.measureHeightSpec = s
                     } else {
-                        lp.measureHeightSpec = getChildMeasureSpec(heightMeasureSpec, verticalPadding(), vg.vv)
+                        lp.measureHeightSpec = getChildMeasureSpec(heightMeasureSpec, 0, vg.vv)
                         vg.vv = 0
                     }
                 } else if (lp.height > 0) {
@@ -439,7 +560,7 @@ class DivisionLayout : ViewGroup {
                         vg.vv -= lp.height
                         lp.measureHeightSpec = s
                     } else {
-                        lp.measureHeightSpec = getChildMeasureSpec(heightMeasureSpec, verticalPadding(), vg.vv)
+                        lp.measureHeightSpec = getChildMeasureSpec(heightMeasureSpec, 0, vg.vv)
                         vg.vv = 0
                     }
                 }
@@ -457,16 +578,16 @@ class DivisionLayout : ViewGroup {
                             lp.divLeft + lp.divWidth + lp.divRight
                         else
                             lp.divLeft + lp.divRight
-                val s = getChildMeasureSpec(widthMeasureSpec, horizontalPadding(), lp.width)
+                val s = getChildMeasureSpec(widthMeasureSpec, 0, lp.width)
                 if (lp.width == ViewGroup.LayoutParams.MATCH_PARENT)
-                    lp.measureWidthSpec = getChildMeasureSpec(widthMeasureSpec, horizontalPadding(), hg.hl - hg.hf)
+                    lp.measureWidthSpec = getChildMeasureSpec(widthMeasureSpec, 0, hg.hl - hg.hf)
                 else if (lp.width == ViewGroup.LayoutParams.WRAP_CONTENT) {
                     c.measure(s, 0)
                     if (hg.hv > c.measuredWidth) {
                         hg.hv -= c.measuredWidth
                         lp.measureWidthSpec = s
                     } else {
-                        lp.measureWidthSpec = getChildMeasureSpec(widthMeasureSpec, horizontalPadding(), hg.hv)
+                        lp.measureWidthSpec = getChildMeasureSpec(widthMeasureSpec, 0, hg.hv)
                         hg.hv = 0
                     }
                 } else if (lp.width > 0) {
@@ -474,7 +595,7 @@ class DivisionLayout : ViewGroup {
                         hg.hv -= lp.width
                         lp.measureWidthSpec = s
                     } else {
-                        lp.measureWidthSpec = getChildMeasureSpec(widthMeasureSpec, horizontalPadding(), hg.hv)
+                        lp.measureWidthSpec = getChildMeasureSpec(widthMeasureSpec, 0, hg.hv)
                         hg.hv = 0
                     }
                 }
@@ -484,14 +605,14 @@ class DivisionLayout : ViewGroup {
         for (g in divisionList.values) {
             for (l in g.verticalOrderList) {
                 if (l.key - 1 > g.verticalList.size)
-                    throw(DivisionLayoutExecption(DivisionLayoutExecption.E4))
+                    throw(DivisionLayoutException(DivisionLayoutException.E4))
                 l.value.forEach {
                     g.verticalList.add(l.key - 1, it)
                 }
             }
             for (l in g.horizontalOrderList) {
                 if (l.key - 1 > g.horizontalList.size)
-                    throw(DivisionLayoutExecption(DivisionLayoutExecption.E4))
+                    throw(DivisionLayoutException(DivisionLayoutException.E4))
                 l.value.forEach {
                     g.horizontalList.add(l.key - 1, it)
                 }
@@ -500,7 +621,7 @@ class DivisionLayout : ViewGroup {
                 val c = getChildAt(it)
                 val lp = c.layoutParams as DivisionLayout.LayoutParams
                 if (lp.height == 0)
-                    lp.measureHeightSpec = getChildMeasureSpec(heightMeasureSpec, verticalPadding(), f(g.vv, lp.divHeight, g.va))
+                    lp.measureHeightSpec = getChildMeasureSpec(heightMeasureSpec, 0, f(g.vv, lp.divHeight, g.va))
                 if (lp.measureCheck) {
                     c.measure(lp.measureWidthSpec, lp.measureHeightSpec)
                     lp.measureCheck = false
@@ -511,7 +632,7 @@ class DivisionLayout : ViewGroup {
                 val c = getChildAt(it)
                 val lp = c.layoutParams as DivisionLayout.LayoutParams
                 if (lp.width == 0)
-                    lp.measureWidthSpec = getChildMeasureSpec(widthMeasureSpec, horizontalPadding(), f(g.hv, lp.divWidth, g.ha))
+                    lp.measureWidthSpec = getChildMeasureSpec(widthMeasureSpec, 0, f(g.hv, lp.divWidth, g.ha))
                 if (lp.measureCheck) {
                     c.measure(lp.measureWidthSpec, lp.measureHeightSpec)
                 } else
@@ -522,9 +643,9 @@ class DivisionLayout : ViewGroup {
             val c = getChildAt(it)
             val lp = c.layoutParams as DivisionLayout.LayoutParams
             lp.measureHeightSpec = when (lp.height) {
-                ViewGroup.LayoutParams.MATCH_PARENT -> getChildMeasureSpec(heightMeasureSpec, verticalPadding(), measuredHeight)
-                0 -> getChildMeasureSpec(heightMeasureSpec, verticalPadding(), f(measuredHeight, lp.divHeight, lp.divTop + lp.divHeight + lp.divBottom))
-                else -> getChildMeasureSpec(heightMeasureSpec, verticalPadding(), lp.height)
+                ViewGroup.LayoutParams.MATCH_PARENT -> getChildMeasureSpec(heightMeasureSpec, 0, contentsHeight)
+                0 -> getChildMeasureSpec(heightMeasureSpec, 0, f(contentsHeight, lp.divHeight, lp.divTop + lp.divHeight + lp.divBottom))
+                else -> getChildMeasureSpec(heightMeasureSpec, 0, lp.height)
             }
             if (lp.measureCheck) {
                 c.measure(lp.measureWidthSpec, lp.measureHeightSpec)
@@ -536,9 +657,9 @@ class DivisionLayout : ViewGroup {
             val c = getChildAt(it)
             val lp = c.layoutParams as DivisionLayout.LayoutParams
             lp.measureWidthSpec = when (lp.width) {
-                ViewGroup.LayoutParams.MATCH_PARENT -> getChildMeasureSpec(widthMeasureSpec, horizontalPadding(), measuredWidth)
-                0 -> getChildMeasureSpec(widthMeasureSpec, horizontalPadding(), f(measuredWidth, lp.divWidth, lp.divLeft + lp.divWidth + lp.divRight))
-                else -> getChildMeasureSpec(widthMeasureSpec, horizontalPadding(), lp.width)
+                ViewGroup.LayoutParams.MATCH_PARENT -> getChildMeasureSpec(widthMeasureSpec, 0, contentsWidth)
+                0 -> getChildMeasureSpec(widthMeasureSpec, 0, f(contentsWidth, lp.divWidth, lp.divLeft + lp.divWidth + lp.divRight))
+                else -> getChildMeasureSpec(widthMeasureSpec, 0, lp.width)
             }
             if (lp.measureCheck) {
                 c.measure(lp.measureWidthSpec, lp.measureHeightSpec)
@@ -562,27 +683,27 @@ class DivisionLayout : ViewGroup {
                         gr.vf = stringToPx(gr.t as String)
                         if (gr.b is Number) {
                             if (gr.vu == -1) {
-                                gr.vv = f(measuredHeight - gr.vf, anyToFloat(gr.h), anyToFloat(gr.h) + anyToFloat(gr.b))
+                                gr.vv = f(contentsHeight - gr.vf, anyToFloat(gr.h), anyToFloat(gr.h) + anyToFloat(gr.b))
                                 gr.vl = gr.vf + gr.vv
                             } else {
                                 gr.vv = gr.vu
                                 gr.vl = gr.vv + gr.vf
                             }
                         }
-                    } catch (e: DivisionLayoutExecption) {
+                    } catch (e: DivisionLayoutException) {
                         catch = true
                     }
                 }
                 if (gr.b is String) {
                     try {
                         val l = stringToPx(gr.b as String)
-                        gr.vl = measuredHeight - l
+                        gr.vl = contentsHeight - l
                         if (gr.vf != -1) {
                             if (gr.vu == -1) {
                                 gr.vv = gr.vl - gr.vf
                             } else {
                                 gr.vv = gr.vu
-                                val a = (measuredHeight - gr.vv - gr.vf - l) / 2
+                                val a = (contentsHeight - gr.vv - gr.vf - l) / 2
                                 gr.vf += a
                                 gr.vl -= a
                             }
@@ -595,23 +716,23 @@ class DivisionLayout : ViewGroup {
                                 gr.vf = gr.vl - gr.vv
                             }
                         }
-                    } catch (e: DivisionLayoutExecption) {
+                    } catch (e: DivisionLayoutException) {
                         catch = true
                     }
                 }
                 if (catch) lateVerticalDivisionJson.add(n)
             } else if (gr.t is Number && gr.b is Number) {
                 if (gr.vu == -1) {
-                    gr.vf = f(measuredHeight, anyToFloat(gr.t), anyToFloat(gr.t) + anyToFloat(gr.h) + anyToFloat(gr.b))
-                    gr.vl = measuredHeight - f(measuredHeight, anyToFloat(gr.b), anyToFloat(gr.t) + anyToFloat(gr.h) + anyToFloat(gr.b))
+                    gr.vf = f(contentsHeight, anyToFloat(gr.t), anyToFloat(gr.t) + anyToFloat(gr.h) + anyToFloat(gr.b))
+                    gr.vl = contentsHeight - f(contentsHeight, anyToFloat(gr.b), anyToFloat(gr.t) + anyToFloat(gr.h) + anyToFloat(gr.b))
                     gr.vv = gr.vl - gr.vf
                 } else {
                     gr.vv = gr.vu
-                    gr.vf = f(measuredHeight - gr.vv, anyToFloat(gr.t), anyToFloat(gr.t) + anyToFloat(gr.b))
+                    gr.vf = f(contentsHeight - gr.vv, anyToFloat(gr.t), anyToFloat(gr.t) + anyToFloat(gr.b))
                     gr.vl = gr.vv + gr.vf
                 }
             } else
-                throw (DivisionLayoutExecption(DivisionLayoutExecption.E5))
+                throw (DivisionLayoutException(DivisionLayoutException.E5))
 
             if (gr.l is String || gr.r is String) {
                 var catch = false
@@ -620,27 +741,27 @@ class DivisionLayout : ViewGroup {
                         gr.hf = stringToPx(gr.l as String)
                         if (gr.r is Number) {
                             if (gr.hu == -1) {
-                                gr.hv = f(measuredWidth - gr.hf, anyToFloat(gr.w), anyToFloat(gr.w) + anyToFloat(gr.r))
+                                gr.hv = f(contentsWidth - gr.hf, anyToFloat(gr.w), anyToFloat(gr.w) + anyToFloat(gr.r))
                                 gr.hl = gr.hf + gr.hv
                             } else {
                                 gr.hv = gr.hu
                                 gr.hl = gr.hv + gr.hf
                             }
                         }
-                    } catch (e: DivisionLayoutExecption) {
+                    } catch (e: DivisionLayoutException) {
                         catch = true
                     }
                 }
                 if (gr.r is String) {
                     try {
                         val l = stringToPx(gr.r as String)
-                        gr.hl = measuredWidth - l
+                        gr.hl = contentsWidth - l
                         if (gr.hf != -1) {
                             if (gr.hu == -1) {
                                 gr.hv = gr.hl - gr.hf
                             } else {
                                 gr.hv = gr.hu
-                                val a = (measuredWidth - gr.hv - gr.hf - l) / 2
+                                val a = (contentsWidth - gr.hv - gr.hf - l) / 2
                                 gr.hf += a
                                 gr.hl -= a
                             }
@@ -653,23 +774,23 @@ class DivisionLayout : ViewGroup {
                                 gr.hf = gr.hv - gr.hl
                             }
                         }
-                    } catch (e: DivisionLayoutExecption) {
+                    } catch (e: DivisionLayoutException) {
                         catch = true
                     }
                 }
                 if (catch) lateHorizontalDivisionJson.add(n)
             } else if (gr.l is Number && gr.r is Number) {
                 if (gr.hu == -1) {
-                    gr.hf = f(measuredWidth, anyToFloat(gr.l), anyToFloat(gr.l) + anyToFloat(gr.w) + anyToFloat(gr.r))
-                    gr.hl = measuredWidth - f(measuredWidth, anyToFloat(gr.r), anyToFloat(gr.l) + anyToFloat(gr.w) + anyToFloat(gr.r))
+                    gr.hf = f(contentsWidth, anyToFloat(gr.l), anyToFloat(gr.l) + anyToFloat(gr.w) + anyToFloat(gr.r))
+                    gr.hl = contentsWidth - f(contentsWidth, anyToFloat(gr.r), anyToFloat(gr.l) + anyToFloat(gr.w) + anyToFloat(gr.r))
                     gr.hv = gr.hl - gr.hf
                 } else {
                     gr.hv = gr.hu
-                    gr.hf = f(measuredWidth - gr.hv, anyToFloat(gr.l), anyToFloat(gr.l) + anyToFloat(gr.r))
+                    gr.hf = f(contentsWidth - gr.hv, anyToFloat(gr.l), anyToFloat(gr.l) + anyToFloat(gr.r))
                     gr.hl = gr.hv + gr.hf
                 }
             } else
-                throw (DivisionLayoutExecption(DivisionLayoutExecption.E5))
+                throw (DivisionLayoutException(DivisionLayoutException.E5))
         }
 
         while (lateVerticalDivisionJson.isNotEmpty())
@@ -679,20 +800,14 @@ class DivisionLayout : ViewGroup {
     }
 
     private fun makeGroup(name : String) {
+        if(name == "p" || name == "parent")
+            throw DivisionLayoutException(DivisionLayoutException.E16)
         if(!divisionList.containsKey(name)) divisionList[name] = D()
     }
 
     private fun f(p : Int, v : Float, m : Float) : Int {
         return if(v <= 0F || m <= 0F || p <= 0) 0
         else (p/m*v).toInt()
-    }
-
-    private fun verticalPadding() : Int {
-        return paddingTop + paddingBottom
-    }
-
-    private fun horizontalPadding() : Int {
-        return paddingLeft + paddingRight
     }
     
     private fun attrDivisionJsonObject(string : String) : JSONObject {
@@ -704,8 +819,6 @@ class DivisionLayout : ViewGroup {
         if(st.last() != '}') st += "}"
         try {
             result = JSONObject(st)
-            if(result.isNull("name") && result.isNull("n") && result.getString("name") == "")
-                throw DivisionLayoutExecption(DivisionLayoutExecption.E14)
             if(!result.isNull("n") && result.isNull("name")) result.put("name",result.get("n"))
             if(!result.isNull("h") && result.isNull("height")) result.put("height",result.get("h"))
             if(!result.isNull("w") && result.isNull("width")) result.put("width",result.get("w"))
@@ -715,7 +828,7 @@ class DivisionLayout : ViewGroup {
             if(!result.isNull("b") && result.isNull("bottom")) result.put("bottom",result.get("b"))
             return result
         } catch (e: JSONException) {
-            throw DivisionLayoutExecption(DivisionLayoutExecption.E1, e)
+            throw DivisionLayoutException(DivisionLayoutException.E1, e)
         }
     }
 
@@ -730,8 +843,6 @@ class DivisionLayout : ViewGroup {
             result = JSONArray(st)
             for(i in 0 until result.length()) {
                 val jo = result.getJSONObject(i)
-                if(jo.isNull("name") && jo.isNull("n") && jo.getString("name") == "")
-                    throw(DivisionLayoutExecption(DivisionLayoutExecption.E14))
                 if(!jo.isNull("n") && jo.isNull("name")) jo.put("name",jo.get("n"))
                 if(!jo.isNull("h") && jo.isNull("height")) jo.put("height",jo.get("h"))
                 if(!jo.isNull("w") && jo.isNull("width")) jo.put("width",jo.get("w"))
@@ -742,7 +853,7 @@ class DivisionLayout : ViewGroup {
             }
             return result
         } catch (e: JSONException) {
-            throw(DivisionLayoutExecption(DivisionLayoutExecption.E1, e))
+            throw(DivisionLayoutException(DivisionLayoutException.E1, e))
         }
     }
 
@@ -755,7 +866,7 @@ class DivisionLayout : ViewGroup {
                 s = s.substring(0, s.length - 2)
                 s.toIntOrNull().let {
                     if (it == null)
-                        throw (DivisionLayoutExecption(DivisionLayoutExecption.E11))
+                        throw (DivisionLayoutException(DivisionLayoutException.E11))
                     return (it * resources.displayMetrics.density).toInt()
                 }
             }
@@ -763,11 +874,11 @@ class DivisionLayout : ViewGroup {
                 s = s.substring(0, s.length - 2)
                 s.toIntOrNull().let {
                     if (it == null)
-                        throw (DivisionLayoutExecption(DivisionLayoutExecption.E11))
+                        throw (DivisionLayoutException(DivisionLayoutException.E11))
                     return it
                 }
             }
-            else -> throw (DivisionLayoutExecption(DivisionLayoutExecption.E11))
+            else -> throw (DivisionLayoutException(DivisionLayoutException.E11))
         }
     }
 
@@ -784,7 +895,7 @@ class DivisionLayout : ViewGroup {
                 lp.divTop = 0F; lp.divHeight = 0F; lp.divBottom = 0F
                 if (lp.height > 0) result += lp.height
                 else if (lp.height == ViewGroup.LayoutParams.WRAP_CONTENT) {
-                    c.measure(0, getChildMeasureSpec(heightMeasureSpec, verticalPadding(), ViewGroup.LayoutParams.WRAP_CONTENT))
+                    c.measure(0, getChildMeasureSpec(heightMeasureSpec, 0, ViewGroup.LayoutParams.WRAP_CONTENT))
                     result += c.measuredHeight
                 }
             }
@@ -801,7 +912,7 @@ class DivisionLayout : ViewGroup {
                 lp.divLeft = 0F; lp.divWidth = 0F; lp.divRight = 0F
                 if (lp.width > 0) result += lp.width
                 else if (lp.width == ViewGroup.LayoutParams.WRAP_CONTENT) {
-                    c.measure(getChildMeasureSpec(widthMeasureSpec, horizontalPadding(), ViewGroup.LayoutParams.WRAP_CONTENT), 0)
+                    c.measure(getChildMeasureSpec(widthMeasureSpec, 0, ViewGroup.LayoutParams.WRAP_CONTENT), 0)
                     result += c.measuredWidth
                 }
             }
@@ -818,7 +929,7 @@ class DivisionLayout : ViewGroup {
         if(g.vu == -1) {
             if (g.t is String && g.b is String) g.vv = g.vl - g.vf
             else if (g.t is String && g.b is Number) {
-                g.vv = f(measuredHeight - g.vf, anyToFloat(g.h), anyToFloat(g.h) + anyToFloat(g.b))
+                g.vv = f(contentsHeight - g.vf, anyToFloat(g.h), anyToFloat(g.h) + anyToFloat(g.b))
                 g.vl =  g.vv + g.vf
             } else if (g.b is String && g.t is Number) {
                 g.vv = f(g.vl, anyToFloat(g.h), anyToFloat(g.h) + anyToFloat(g.t))
@@ -827,7 +938,7 @@ class DivisionLayout : ViewGroup {
         } else {
             g.vv = g.vu
             if (g.t is String && g.b is String) {
-                val a : Int = (measuredHeight - g.vv - g.vf - (measuredHeight - g.vl))/2
+                val a : Int = (contentsHeight - g.vv - g.vf - (contentsHeight - g.vl))/2
                 g.vf += a
                 g.vl -= a
             }
@@ -849,7 +960,7 @@ class DivisionLayout : ViewGroup {
         if(g.hu == -1) {
             if (g.l is String && g.r is String) g.hv = g.hl - g.hf
             else if (g.l is String && g.r is Number) {
-                g.hv = f(measuredWidth - g.hf, anyToFloat(g.w), anyToFloat(g.w) + anyToFloat(g.r))
+                g.hv = f(contentsWidth - g.hf, anyToFloat(g.w), anyToFloat(g.w) + anyToFloat(g.r))
                 g.hl = g.hv + g.hf
             } else if (g.r is String && g.l is Number) {
                 g.hv = f(g.hl, anyToFloat(g.w), anyToFloat(g.w) + anyToFloat(g.l))
@@ -858,7 +969,7 @@ class DivisionLayout : ViewGroup {
         } else {
             g.hv = g.hu
             if (g.l is String && g.r is String) {
-                val a : Int = (measuredWidth - g.hv - g.hf - (measuredWidth - g.hl))/2
+                val a : Int = (contentsWidth - g.hv - g.hf - (contentsWidth - g.hl))/2
                 g.hf += a
                 g.hl -= a
             }
@@ -874,16 +985,25 @@ class DivisionLayout : ViewGroup {
     private fun findVerticalValue(to : String, des : String) : Int {
         val t = des.split(".")
         if(t[0] == to)
-            throw ((DivisionLayoutExecption(DivisionLayoutExecption.E8)))
+            throw ((DivisionLayoutException(DivisionLayoutException.E8)))
         if(t.size != 2)
-            throw (DivisionLayoutExecption(DivisionLayoutExecption.E13))
+            throw (DivisionLayoutException(DivisionLayoutException.E13))
+        if(t[0] == "p" || t[0] == "parent") {
+            recycleHashSet.clear()
+            return if(t[1] == "t" || t[1] == "top") {
+                0
+            } else if(t[1] == "b" || t[1] == "bottom") {
+                contentsHeight
+            } else
+                throw (DivisionLayoutException(DivisionLayoutException.E6))
+        }
         val gl = divisionList[t[0]]
         return if(gl == null || t[0] == LayoutParams.DEFAULT_DIVISION)
-            throw(DivisionLayoutExecption(DivisionLayoutExecption.E10))
+            throw(DivisionLayoutException(DivisionLayoutException.E10))
         else if(t[1] == "t" || t[1] == "top") {
             if(gl.vf == -1) {
                 if (recycleHashSet.contains(t[0]))
-                    throw (DivisionLayoutExecption(DivisionLayoutExecption.E9))
+                    throw (DivisionLayoutException(DivisionLayoutException.E9))
                 recycleHashSet.add(t[0])
                 if(gl.t is String)
                     findVerticalValue(t[0], gl.t as String)
@@ -897,7 +1017,7 @@ class DivisionLayout : ViewGroup {
         else if(t[1] == "b" || t[1] == "bottom") {
             if(gl.vl == -1) {
                 if (recycleHashSet.contains(t[0]))
-                    throw (DivisionLayoutExecption(DivisionLayoutExecption.E9))
+                    throw (DivisionLayoutException(DivisionLayoutException.E9))
                 recycleHashSet.add(t[0])
                 if(gl.b is String)
                     findVerticalValue(t[0], gl.b as String)
@@ -909,22 +1029,31 @@ class DivisionLayout : ViewGroup {
             }
         }
         else
-            throw (DivisionLayoutExecption(DivisionLayoutExecption.E6))
+            throw (DivisionLayoutException(DivisionLayoutException.E6))
     }
 
     private fun findHorizontalValue(to : String, des : String) : Int {
         val t = des.split(".")
         if(t[0] == to)
-            throw ((DivisionLayoutExecption(DivisionLayoutExecption.E8)))
+            throw ((DivisionLayoutException(DivisionLayoutException.E8)))
         if(t.size != 2)
-            throw (DivisionLayoutExecption(DivisionLayoutExecption.E13))
+            throw (DivisionLayoutException(DivisionLayoutException.E13))
+        if(t[0] == "p" || t[0] == "parent") {
+            recycleHashSet.clear()
+            return if(t[1] == "l" || t[1] == "left") {
+                0
+            } else if(t[1] == "r" || t[1] == "right") {
+                contentsWidth
+            } else
+                throw (DivisionLayoutException(DivisionLayoutException.E6))
+        }
         val gl = divisionList[t[0]]
         return if(gl == null || t[0] == LayoutParams.DEFAULT_DIVISION)
-            throw(DivisionLayoutExecption(DivisionLayoutExecption.E10))
+            throw(DivisionLayoutException(DivisionLayoutException.E10))
         else if(t[1] == "l" || t[1] == "left") {
             if(gl.hf == -1) {
                 if (recycleHashSet.contains(t[0]))
-                    throw (DivisionLayoutExecption(DivisionLayoutExecption.E9))
+                    throw (DivisionLayoutException(DivisionLayoutException.E9))
                 recycleHashSet.add(t[0])
                 if(gl.l is String)
                     findHorizontalValue(t[0], gl.l as String)
@@ -938,7 +1067,7 @@ class DivisionLayout : ViewGroup {
         else if(t[1] == "r" || t[1] == "right") {
             if(gl.hl == -1) {
                 if (recycleHashSet.contains(t[0]))
-                    throw (DivisionLayoutExecption(DivisionLayoutExecption.E9))
+                    throw (DivisionLayoutException(DivisionLayoutException.E9))
                 recycleHashSet.add(t[0])
                 if(gl.r is String)
                     findHorizontalValue(t[0], gl.r as String)
@@ -950,7 +1079,7 @@ class DivisionLayout : ViewGroup {
             }
         }
         else
-            throw (DivisionLayoutExecption(DivisionLayoutExecption.E7))
+            throw (DivisionLayoutException(DivisionLayoutException.E7))
     }
 
 
@@ -970,7 +1099,7 @@ class DivisionLayout : ViewGroup {
         return p is DivisionLayout.LayoutParams
     }
 
-    class LayoutParams : ViewGroup.MarginLayoutParams {
+    class LayoutParams : ViewGroup.LayoutParams {
 
         companion object {
             const val DEFAULT_DIVISION = ""
@@ -988,6 +1117,10 @@ class DivisionLayout : ViewGroup {
         var divBottom = DEFAULT_VALUE
         var divLeft = DEFAULT_VALUE
         var divRight = DEFAULT_VALUE
+        var divMarginTop = "0"
+        var divMarginBottom = "0"
+        var divMarginStart = "0"
+        var divMarginEnd = "0"
 
         internal var measureCheck = false
         internal var measureWidthSpec = 0
@@ -1016,7 +1149,11 @@ class DivisionLayout : ViewGroup {
             divLeft = ta.getFloat(R.styleable.DivisionLayout_Layout_div_member_left,DEFAULT_VALUE)
             divRight = ta.getFloat(R.styleable.DivisionLayout_Layout_div_member_right,DEFAULT_VALUE)
             verticalOrder = ta.getInt(R.styleable.DivisionLayout_Layout_vertical_div_order,DEFAULT_ORDER)
-            horizontalOrder = ta.getInt(R.styleable.DivisionLayout_Layout_vertical_div_order,DEFAULT_ORDER)
+            horizontalOrder = ta.getInt(R.styleable.DivisionLayout_Layout_horizontal_div_order,DEFAULT_ORDER)
+            ta.getString(R.styleable.DivisionLayout_Layout_div_marginTop)?.let { divMarginTop = it }
+            ta.getString(R.styleable.DivisionLayout_Layout_div_marginBottom)?.let { divMarginBottom = it }
+            ta.getString(R.styleable.DivisionLayout_Layout_div_marginStart)?.let { divMarginStart = it }
+            ta.getString(R.styleable.DivisionLayout_Layout_div_marginEnd)?.let { divMarginEnd = it }
 
             ta.recycle()
         }
@@ -1045,16 +1182,16 @@ class DivisionLayout : ViewGroup {
         val horizontalOrderList = HashMap<Int,ArrayList<Int>>()
 
         init {
-            vv = measuredHeight
+            vv = contentsHeight
             vl = vv
-            hv = measuredWidth
+            hv = contentsWidth
             hl = hv
         }
 
         fun reset() {
             va = 0F
             vf = 0
-            vv = measuredHeight
+            vv = contentsHeight
             vu = -1
             t = 0F
             b = 0F
@@ -1063,7 +1200,7 @@ class DivisionLayout : ViewGroup {
             verticalOrderList.values.forEach { it.clear() }
             ha = 0F
             hf = 0
-            hv = measuredWidth
+            hv = contentsWidth
             hu = -1
             l = 0F
             r = 0F
