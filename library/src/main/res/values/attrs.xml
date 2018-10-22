@@ -2,16 +2,19 @@
 <resources>
 
     <declare-styleable name="DivisionLayout_Layout">
+        <attr name="integrated_div" format="string"/>
+        <attr name="vertical_div" format="string"/>
+        <attr name="horizontal_div" format="string"/>
+        <attr name="vertical_div_order" format="integer"/>
+        <attr name="horizontal_div_order" format="integer"/>
         <attr name="div_member_width" format="float"/>
         <attr name="div_member_height" format="float"/>
         <attr name="div_member_left" format="float"/>
         <attr name="div_member_right" format="float"/>
         <attr name="div_member_top" format="float"/>
         <attr name="div_member_bottom" format="float"/>
-        <attr name="vertical_div" format="string"/>
-        <attr name="horizontal_div" format="string"/>
-        <attr name="vertical_div_order" format="integer"/>
-        <attr name="horizontal_div_order" format="integer"/>
+        <attr name="div_marginHeightRatio" format="float"/>
+        <attr name="div_marginWidthRatio" format="float"/>
         <attr name="div_marginTop" format="string|dimension"/>
         <attr name="div_marginBottom" format="string|dimension"/>
         <attr name="div_marginStart" format="string|dimension"/>
