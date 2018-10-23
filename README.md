@@ -7,7 +7,7 @@
 ## DivisionLayout은...
 서로 다른 해상도의 안드로이드 디바이스에서, 같은 비율로 View를 배치할 수 있는 Layout 라이브러리입니다.  
 top, height, bottom으로 구성된 세로 비율과 left, width, right로 구성된 가로 비율을 계산하여 View를 배치합니다.  
-Division을 사용하면 자식 뷰들을 가로 혹은 세로로 정렬하여 배치할 수 있습니다.
+Division을 사용하면 여러 자식 뷰들을 가로, 세로로 정렬하여 배치할 수 있습니다.
 ## 특징
 1. ConstraintLayout의 percent나, LinearLayout의 weight 처럼 상대적인 비율로 뷰를 배치합니다.
 2. Division이라는 개념을 사용하여 자식 View들을 묶을 수 있습니다.  

@@ -524,12 +524,12 @@ class DivisionLayout : ViewGroup {
                     lp.layoutCheck = false
                 } else lp.layoutCheck = true
             }
-            var lh = g.hf + paddingLeft
+            var lh = g.hf
             g.horizontalList.forEach {
                 val c = getChildAt(it)
                 val lp = c.layoutParams as DivisionLayout.LayoutParams
                 if (lp.width == ViewGroup.LayoutParams.MATCH_PARENT) {
-                    lp.layoutLeft = g.hf + paddingLeft + lp.marginStart
+                    lp.layoutLeft = g.hf + lp.marginStart
                     lp.layoutRight = lp.layoutLeft + c.measuredWidth
                 } else {
                     lp.layoutLeft = lh + f(g.hv, lp.leftRatio, g.ha) + lp.leftPx + lp.marginStart
@@ -546,9 +546,10 @@ class DivisionLayout : ViewGroup {
         defaultVerticalDivision.forEach {
             val c = getChildAt(it)
             val lp = c.layoutParams as DivisionLayout.LayoutParams
+            val contentsBottom = contentsHeight + paddingTop
             lp.layoutTop = f(contentsHeight - c.measuredHeight - lp.topPx - lp.bottomPx - lp.marginBottom - lp.marginTop, lp.topRatio, lp.topRatio + lp.bottomRatio) + lp.topPx + paddingTop + lp.marginTop
             lp.layoutBottom = lp.layoutTop + c.measuredHeight
-            if(lp.layoutTop > contentsHeight) lp.layoutTop = contentsHeight; if(lp.layoutBottom > contentsHeight) lp.layoutBottom = contentsHeight
+            if(lp.layoutTop > contentsBottom) lp.layoutTop = contentsBottom; if(lp.layoutBottom > contentsBottom) lp.layoutBottom = contentsBottom
             if (lp.layoutCheck) {
                 c.layout(lp.layoutLeft, lp.layoutTop, lp.layoutRight, lp.layoutBottom)
                 lp.layoutCheck = false
@@ -557,9 +558,10 @@ class DivisionLayout : ViewGroup {
         defaultHorizontalDivision.forEach {
             val c = getChildAt(it)
             val lp = c.layoutParams as DivisionLayout.LayoutParams
+            val contentsEnd = contentsWidth + paddingStart
             lp.layoutLeft = f(contentsWidth - c.measuredWidth - lp.leftPx - lp.rightPx - lp.marginStart - lp.marginEnd, lp.leftRatio, lp.leftRatio + lp.rightRatio) + lp.leftPx + paddingStart + lp.marginStart
             lp.layoutRight = lp.layoutLeft + c.measuredWidth
-            if(lp.layoutLeft > contentsWidth) lp.layoutLeft = contentsWidth; if(lp.layoutRight > contentsWidth) lp.layoutRight = contentsWidth
+            if(lp.layoutLeft > contentsEnd) lp.layoutLeft = contentsEnd; if(lp.layoutRight > contentsEnd) lp.layoutRight = contentsEnd
             if (lp.layoutCheck) {
                 c.layout(lp.layoutLeft, lp.layoutTop, lp.layoutRight, lp.layoutBottom)
                 lp.layoutCheck = false
@@ -643,6 +645,12 @@ class DivisionLayout : ViewGroup {
                     hg.hv -= lp.width
                 }
             } else defaultHorizontalDivision.add(i)
+        }
+        divisionList.forEach {
+            it.value.vf += paddingTop
+            it.value.vl += paddingTop
+            it.value.hf += paddingStart
+            it.value.hl += paddingStart
         }
 
         for (g in divisionList.values) {
