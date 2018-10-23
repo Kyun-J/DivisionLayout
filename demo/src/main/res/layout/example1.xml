@@ -1,47 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
-<app.dvkyun.divisionlayout.DivisionLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<app.dvkyun.divisionlayout.DivisionLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:create_division_1="n:toolbar, h:wrap"
+    app:create_division_1="n:toolbar"
     app:create_division_2="n:main, t:toolbar.b">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:integrated_div="toolbar" />
+
     <Button
+        android:id="@+id/back"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="back"
-        android:id="@+id/back"
-        app:vertical_div="toolbar"
-        app:div_marginTop="1dp"
-        app:horizontal_div="toolbar"
         app:div_top="1"
-        app:div_bottom="300dp"
-        app:div_height="1"
         app:div_left="0.1"
-        app:div_width="2"/>
+        app:div_width="2"
+        app:horizontal_div="toolbar"
+        app:vertical_div="toolbar" />
+
     <TextView
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Logo"
         android:gravity="center"
-        app:vertical_div="toolbar"
-        app:horizontal_div="toolbar"
+        android:text="Logo"
         app:div_height="1"
         app:div_left="1"
-        app:div_width="6"/>
+        app:div_width="6"
+        app:horizontal_div="toolbar"
+        app:vertical_div="toolbar" />
+
     <Button
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:text="menu"
-        app:vertical_div="toolbar"
-        app:horizontal_div="toolbar"
         app:div_left="1"
+        app:div_right="0.1"
         app:div_width="1.5"
-        app:div_right="0.1"/>
+        app:horizontal_div="toolbar"
+        app:vertical_div="toolbar" />
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        app:vertical_div="main"
-        android:text="hi"/>
+        android:text="hi"
+        app:vertical_div="main" />
 </app.dvkyun.divisionlayout.DivisionLayout>

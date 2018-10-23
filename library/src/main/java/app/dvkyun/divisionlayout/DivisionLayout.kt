@@ -506,12 +506,12 @@ class DivisionLayout : ViewGroup {
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
         for (g in divisionList.values) {
-            var lv = g.vf + paddingTop
+            var lv = g.vf
             g.verticalList.forEach {
                 val c = getChildAt(it)
                 val lp = c.layoutParams as DivisionLayout.LayoutParams
                 if (lp.height == ViewGroup.LayoutParams.MATCH_PARENT) {
-                    lp.layoutTop = g.vf + paddingTop + lp.marginTop
+                    lp.layoutTop = g.vf+ lp.marginTop
                     lp.layoutBottom = lp.layoutTop + c.measuredHeight
                 } else {
                     lp.layoutTop = lv + f(g.vv, lp.topRatio, g.va) + lp.topPx + lp.marginTop
@@ -546,7 +546,7 @@ class DivisionLayout : ViewGroup {
         defaultVerticalDivision.forEach {
             val c = getChildAt(it)
             val lp = c.layoutParams as DivisionLayout.LayoutParams
-            lp.layoutTop = f(contentsHeight - c.measuredHeight, lp.topRatio, lp.topRatio + lp.bottomRatio) + lp.topPx + paddingTop + lp.marginTop
+            lp.layoutTop = f(contentsHeight - c.measuredHeight - lp.topPx - lp.bottomPx - lp.marginBottom - lp.marginTop, lp.topRatio, lp.topRatio + lp.bottomRatio) + lp.topPx + paddingTop + lp.marginTop
             lp.layoutBottom = lp.layoutTop + c.measuredHeight
             if(lp.layoutTop > contentsHeight) lp.layoutTop = contentsHeight; if(lp.layoutBottom > contentsHeight) lp.layoutBottom = contentsHeight
             if (lp.layoutCheck) {
@@ -557,7 +557,7 @@ class DivisionLayout : ViewGroup {
         defaultHorizontalDivision.forEach {
             val c = getChildAt(it)
             val lp = c.layoutParams as DivisionLayout.LayoutParams
-            lp.layoutLeft = f(contentsWidth - c.measuredWidth, lp.leftRatio, lp.leftRatio + lp.rightRatio) + lp.leftPx + paddingStart + lp.marginStart
+            lp.layoutLeft = f(contentsWidth - c.measuredWidth - lp.leftPx - lp.rightPx - lp.marginStart - lp.marginEnd, lp.leftRatio, lp.leftRatio + lp.rightRatio) + lp.leftPx + paddingStart + lp.marginStart
             lp.layoutRight = lp.layoutLeft + c.measuredWidth
             if(lp.layoutLeft > contentsWidth) lp.layoutLeft = contentsWidth; if(lp.layoutRight > contentsWidth) lp.layoutRight = contentsWidth
             if (lp.layoutCheck) {
@@ -694,7 +694,7 @@ class DivisionLayout : ViewGroup {
                     getChildMeasureSpec(heightMeasureSpec,0,setVerticalMarginFromLayoutParam(lp.wrapMeasureVertical,lp))
                 }
                 ViewGroup.LayoutParams.MATCH_PARENT -> getChildMeasureSpec(heightMeasureSpec, 0, setVerticalMarginFromLayoutParam(contentsHeight,lp))
-                0 -> getChildMeasureSpec(heightMeasureSpec, 0, setVerticalMarginFromLayoutParam(f(contentsHeight, lp.divHeight, lp.topRatio + lp.divHeight + lp.bottomRatio),lp))
+                0 -> getChildMeasureSpec(heightMeasureSpec, 0, setVerticalMarginFromLayoutParam(f(contentsHeight - lp.topPx - lp.bottomPx, lp.divHeight, lp.topRatio + lp.divHeight + lp.bottomRatio),lp))
                 else -> getChildMeasureSpec(heightMeasureSpec, 0, setVerticalMarginFromLayoutParam(lp.height,lp))
             }
             if (lp.measureCheck) {
@@ -715,7 +715,7 @@ class DivisionLayout : ViewGroup {
                     getChildMeasureSpec(widthMeasureSpec,0,setHorizontalMarginFromLayoutParam(lp.wrapMeasureHorizontal,lp))
                 }
                 ViewGroup.LayoutParams.MATCH_PARENT -> getChildMeasureSpec(widthMeasureSpec, 0, setHorizontalMarginFromLayoutParam(contentsWidth,lp))
-                0 -> getChildMeasureSpec(widthMeasureSpec, 0, setHorizontalMarginFromLayoutParam(f(contentsWidth, lp.divWidth, lp.leftRatio + lp.divWidth + lp.rightRatio),lp))
+                0 -> getChildMeasureSpec(widthMeasureSpec, 0, setHorizontalMarginFromLayoutParam(f(contentsWidth - lp.leftPx - lp.rightPx, lp.divWidth, lp.leftRatio + lp.divWidth + lp.rightRatio),lp))
                 else -> getChildMeasureSpec(widthMeasureSpec, 0, setHorizontalMarginFromLayoutParam(lp.width,lp))
             }
             if (lp.measureCheck) {
