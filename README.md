@@ -52,8 +52,8 @@ The above xml is calculated by applying the ratio as shown in the figure below.
 Please refer to the [**Wiki**](https://github.com/Kyun-J/division-layout/wiki) for details.
 
 ## ToDoNext
-- Implement margin and padding
 - Make guildlines in android studio preview
+- Added various functions in default_Division
 
 ## Requirements
 - Android SDK 17+
