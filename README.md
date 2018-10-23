@@ -1,4 +1,4 @@
-# division-layout
+# DivisionLayout
 
 [![](https://jitpack.io/v/Kyun-J/DivisionLayout.svg)](https://jitpack.io/#Kyun-J/DivisionLayout)
 [![License](https://img.shields.io/badge/license-MIT-green.svg?style=flat)]()
@@ -72,7 +72,7 @@ allprojects {
 Add the dependency:
 ```gradle
 dependencies {
-  implementation 'com.github.Kyun-J:division-layout:v0.05'
+  implementation 'com.github.Kyun-J:division-layout:0.05'
 }
 ```
 

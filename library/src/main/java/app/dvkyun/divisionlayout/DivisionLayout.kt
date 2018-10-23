@@ -214,7 +214,6 @@ class DivisionLayout : ViewGroup {
             go.put("right", division.right)
             if (f != -1) divisionJson.put(f, go)
             else divisionJson.put(go)
-            calledDivision.remove(division.name)
             requestLayout()
         } catch (e: JSONException) {
             throw(DivisionLayoutException(DivisionLayoutException.E2, e))
@@ -244,7 +243,6 @@ class DivisionLayout : ViewGroup {
                 }
             }
             divisionJson = gl
-            calledDivision.clear()
             requestLayout()
         } catch (e: JSONException) {
             throw(DivisionLayoutException(DivisionLayoutException.E2, e))
@@ -326,8 +324,37 @@ class DivisionLayout : ViewGroup {
                 gl.put(go)
             }
             divisionJson = gl
-            calledDivision.clear()
             requestLayout()
+        } catch (e: JSONException) {
+            throw(DivisionLayoutException(DivisionLayoutException.E2, e))
+        }
+    }
+
+    /*
+    *
+    * Rename Division and return the changed Division.
+    * Existing Division will be deleted and the changed Division will be used instead.
+    *
+    * */
+
+    fun renameDivision(division: Division, name: String) : Division {
+        try {
+            val result = JSONArray()
+            for (i in 0 until divisionJson.length()) {
+                if (division.name != divisionJson.getJSONObject(i).getString("name"))
+                    result.put(divisionJson.get(i))
+            }
+            divisionJson = result
+            calledDivision.remove(division.name)
+            val d = Division(name)
+            d.top = division.top
+            d.bottom = division.bottom
+            d.height = division.height
+            d.left = division.left
+            d.right = division.right
+            d.width = division.width
+            addDivision(d)
+            return d
         } catch (e: JSONException) {
             throw(DivisionLayoutException(DivisionLayoutException.E2, e))
         }
