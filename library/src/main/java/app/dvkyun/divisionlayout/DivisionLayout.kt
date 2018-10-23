@@ -283,7 +283,7 @@ class DivisionLayout : ViewGroup {
     * When this function is successfully called, it redraws the layout
     *
     * */
-    fun removeDivisions(list : Iterable<Division>) {
+    fun removeDivisionList(list : Iterable<Division>) {
         try {
             val result = JSONArray()
             for (i in 0 until divisionJson.length()) {
@@ -348,6 +348,30 @@ class DivisionLayout : ViewGroup {
             for (g in divisionList.values) g.reset()
             defaultVerticalDivision.clear()
             defaultHorizontalDivision.clear()
+            for(i in 0 until childCount) {
+                val c = getChildAt(i)
+                val lp = c.layoutParams as LayoutParams
+                val t = lp.divTop.toFloatOrNull()
+                val b = lp.divBottom.toFloatOrNull()
+                val l = lp.divLeft.toFloatOrNull()
+                val r = lp.divRight.toFloatOrNull()
+                if(t == null)
+                    lp.topPx = stringToPx(lp.divTop)
+                else
+                    lp.topRatio = t
+                if(b == null)
+                    lp.bottomPx = stringToPx(lp.divBottom)
+                else
+                    lp.bottomRatio = b
+                if(l == null)
+                    lp.leftPx = stringToPx(lp.divLeft)
+                else
+                    lp.leftRatio = l
+                if(r == null)
+                    lp.rightPx = stringToPx(lp.divRight)
+                else
+                    lp.rightRatio = r
+            }
             verticalWrapMode = layoutParams.height == ViewGroup.LayoutParams.WRAP_CONTENT
             horizontalWrapMode = layoutParams.width == ViewGroup.LayoutParams.WRAP_CONTENT
             verticalMatchMode = layoutParams.height == ViewGroup.LayoutParams.MATCH_PARENT
@@ -460,13 +484,13 @@ class DivisionLayout : ViewGroup {
                 val c = getChildAt(it)
                 val lp = c.layoutParams as DivisionLayout.LayoutParams
                 if (lp.height == ViewGroup.LayoutParams.MATCH_PARENT) {
-                    lp.layoutTop = g.vf + paddingTop
-                    lp.layoutBottom = g.vl + paddingTop
-
-                } else {
-                    lp.layoutTop = lv + f(g.vv, lp.divTop, g.va)
+                    lp.layoutTop = g.vf + paddingTop + lp.marginTop
                     lp.layoutBottom = lp.layoutTop + c.measuredHeight
-                    lv = lp.layoutBottom + f(g.vv, lp.divBottom, g.va)
+                } else {
+                    lp.layoutTop = lv + f(g.vv, lp.topRatio, g.va) + lp.topPx + lp.marginTop
+                    lp.layoutBottom = lp.layoutTop + c.measuredHeight
+                    lv = lp.layoutBottom + f(g.vv, lp.bottomRatio, g.va) + lp.bottomPx + lp.marginBottom
+                    if(lp.layoutTop > g.vl) lp.layoutTop = g.vl; if(lp.layoutBottom > g.vl) lp.layoutBottom = g.vl
                 }
                 if (lp.layoutCheck) {
                     c.layout(lp.layoutLeft, lp.layoutTop, lp.layoutRight, lp.layoutBottom)
@@ -478,12 +502,13 @@ class DivisionLayout : ViewGroup {
                 val c = getChildAt(it)
                 val lp = c.layoutParams as DivisionLayout.LayoutParams
                 if (lp.width == ViewGroup.LayoutParams.MATCH_PARENT) {
-                    lp.layoutLeft = g.hf + paddingLeft
-                    lp.layoutRight = g.hl + paddingLeft
-                } else {
-                    lp.layoutLeft = lh + f(g.hv, lp.divLeft, g.ha)
+                    lp.layoutLeft = g.hf + paddingLeft + lp.marginStart
                     lp.layoutRight = lp.layoutLeft + c.measuredWidth
-                    lh = lp.layoutRight + f(g.hv, lp.divRight, g.ha)
+                } else {
+                    lp.layoutLeft = lh + f(g.hv, lp.leftRatio, g.ha) + lp.leftPx + lp.marginStart
+                    lp.layoutRight = lp.layoutLeft + c.measuredWidth
+                    lh = lp.layoutRight + f(g.hv, lp.rightRatio, g.ha) + lp.rightPx + lp.marginEnd
+                    if(lp.layoutLeft > g.hl) lp.layoutLeft = g.hl; if(lp.layoutRight > g.hl) lp.layoutRight = g.hl
                 }
                 if (lp.layoutCheck) {
                     c.layout(lp.layoutLeft, lp.layoutTop, lp.layoutRight, lp.layoutBottom)
@@ -494,9 +519,9 @@ class DivisionLayout : ViewGroup {
         defaultVerticalDivision.forEach {
             val c = getChildAt(it)
             val lp = c.layoutParams as DivisionLayout.LayoutParams
-            val m = lp.divTop + lp.divBottom
-            lp.layoutTop = f(contentsHeight - c.measuredHeight, lp.divTop, m) + paddingTop
+            lp.layoutTop = f(contentsHeight - c.measuredHeight, lp.topRatio, lp.topRatio + lp.bottomRatio) + lp.topPx + paddingTop + lp.marginTop
             lp.layoutBottom = lp.layoutTop + c.measuredHeight
+            if(lp.layoutTop > contentsHeight) lp.layoutTop = contentsHeight; if(lp.layoutBottom > contentsHeight) lp.layoutBottom = contentsHeight
             if (lp.layoutCheck) {
                 c.layout(lp.layoutLeft, lp.layoutTop, lp.layoutRight, lp.layoutBottom)
                 lp.layoutCheck = false
@@ -505,9 +530,9 @@ class DivisionLayout : ViewGroup {
         defaultHorizontalDivision.forEach {
             val c = getChildAt(it)
             val lp = c.layoutParams as DivisionLayout.LayoutParams
-            val m = lp.divLeft + lp.divRight
-            lp.layoutLeft = f(contentsWidth - c.measuredWidth, lp.divLeft, m) + paddingStart
+            lp.layoutLeft = f(contentsWidth - c.measuredWidth, lp.leftRatio, lp.leftRatio + lp.rightRatio) + lp.leftPx + paddingStart + lp.marginStart
             lp.layoutRight = lp.layoutLeft + c.measuredWidth
+            if(lp.layoutLeft > contentsWidth) lp.layoutLeft = contentsWidth; if(lp.layoutRight > contentsWidth) lp.layoutRight = contentsWidth
             if (lp.layoutCheck) {
                 c.layout(lp.layoutLeft, lp.layoutTop, lp.layoutRight, lp.layoutBottom)
                 lp.layoutCheck = false
@@ -528,8 +553,6 @@ class DivisionLayout : ViewGroup {
             val lp = c.layoutParams as DivisionLayout.LayoutParams
             if (lp.verticalOrder > childCount || lp.horizontalOrder > childCount)
                 throw DivisionLayoutException("Order can not be greater than the number of views.")
-            if (lp.divWidth < 0 || lp.divHeight < 0 || lp.divTop < 0 || lp.divBottom < 0 || lp.divLeft < 0 || lp.divRight < 0)
-                throw DivisionLayoutException("Value must be greater than -1.")
             if (lp.verticalOrder < LayoutParams.DEFAULT_ORDER || lp.horizontalOrder < LayoutParams.DEFAULT_ORDER)
                 throw DivisionLayoutException("Order must be greater than " + LayoutParams.DEFAULT_ORDER.toString() + ".")
             makeGroup(lp.verticalDivision); makeGroup(lp.horizontalDivision)
@@ -545,9 +568,10 @@ class DivisionLayout : ViewGroup {
                 }
                 vg.va +=
                         if (lp.height == 0)
-                            lp.divTop + lp.divHeight + lp.divBottom
+                            lp.topRatio + lp.divHeight + lp.bottomRatio
                         else
-                            lp.divTop + lp.divBottom
+                            lp.topRatio + lp.bottomRatio
+                vg.vv -= lp.topPx + lp.bottomPx
                 val s = getChildMeasureSpec(heightMeasureSpec, 0, lp.height)
                 if (lp.height == ViewGroup.LayoutParams.MATCH_PARENT)
                     lp.measureHeightSpec = getChildMeasureSpec(heightMeasureSpec, 0, setVerticalMarginFromLayoutParam(vg.vl - vg.vf,lp))
@@ -556,21 +580,11 @@ class DivisionLayout : ViewGroup {
                         c.measure(0, s)
                         lp.wrapMeasureVertical = c.measuredHeight
                     }
-                    if (vg.vv > lp.wrapMeasureVertical) {
-                        vg.vv -= lp.wrapMeasureVertical
-                        lp.measureHeightSpec = getChildMeasureSpec(heightMeasureSpec, 0, lp.wrapMeasureVertical)
-                    } else {
-                        lp.measureHeightSpec = getChildMeasureSpec(heightMeasureSpec, 0, vg.vv)
-                        vg.vv = 0
-                    }
+                    lp.measureHeightSpec = getChildMeasureSpec(heightMeasureSpec, 0, setVerticalMarginFromLayoutParam(lp.wrapMeasureVertical,lp))
+                    vg.vv -= lp.wrapMeasureVertical
                 } else if (lp.height > 0) {
-                    if (vg.vv > lp.height) {
-                        vg.vv -= lp.height
-                        lp.measureHeightSpec = s
-                    } else {
-                        lp.measureHeightSpec = getChildMeasureSpec(heightMeasureSpec, 0, vg.vv)
-                        vg.vv = 0
-                    }
+                    lp.measureHeightSpec = getChildMeasureSpec(heightMeasureSpec, 0, setVerticalMarginFromLayoutParam(lp.height,lp))
+                    vg.vv -= lp.height
                 }
             } else defaultVerticalDivision.add(i)
             if (lp.horizontalDivision != LayoutParams.DEFAULT_DIVISION) {
@@ -583,32 +597,23 @@ class DivisionLayout : ViewGroup {
                 }
                 hg.ha +=
                         if (lp.width == 0)
-                            lp.divLeft + lp.divWidth + lp.divRight
+                            lp.leftRatio + lp.divWidth + lp.rightRatio
                         else
-                            lp.divLeft + lp.divRight
+                            lp.leftRatio + lp.rightRatio
+                hg.hv -= lp.leftPx + lp.rightPx
                 val s = getChildMeasureSpec(widthMeasureSpec, 0, lp.width)
                 if (lp.width == ViewGroup.LayoutParams.MATCH_PARENT)
-                    lp.measureWidthSpec = getChildMeasureSpec(widthMeasureSpec, 0, hg.hl - hg.hf)
+                    lp.measureWidthSpec = getChildMeasureSpec(widthMeasureSpec, 0, setHorizontalMarginFromLayoutParam(hg.hl - hg.hf,lp))
                 else if (lp.width == ViewGroup.LayoutParams.WRAP_CONTENT) {
                     if(lp.wrapMeasureHorizontal == - 1) {
                         c.measure(s, 0)
                         lp.wrapMeasureHorizontal = c.measuredWidth
                     }
-                    if (hg.hv > lp.wrapMeasureHorizontal) {
-                        hg.hv -= lp.wrapMeasureHorizontal
-                        lp.measureWidthSpec = s
-                    } else {
-                        lp.measureWidthSpec = getChildMeasureSpec(widthMeasureSpec, 0, hg.hv)
-                        hg.hv = 0
-                    }
+                    lp.measureWidthSpec = getChildMeasureSpec(widthMeasureSpec,0,setHorizontalMarginFromLayoutParam(lp.wrapMeasureHorizontal,lp))
+                    hg.hv -= lp.wrapMeasureHorizontal
                 } else if (lp.width > 0) {
-                    if (hg.hv > lp.width) {
-                        hg.hv -= lp.width
-                        lp.measureWidthSpec = s
-                    } else {
-                        lp.measureWidthSpec = getChildMeasureSpec(widthMeasureSpec, 0, hg.hv)
-                        hg.hv = 0
-                    }
+                    lp.measureWidthSpec = getChildMeasureSpec(widthMeasureSpec,0,setHorizontalMarginFromLayoutParam(lp.width,lp))
+                    hg.hv -= lp.width
                 }
             } else defaultHorizontalDivision.add(i)
         }
@@ -632,7 +637,7 @@ class DivisionLayout : ViewGroup {
                 val c = getChildAt(it)
                 val lp = c.layoutParams as DivisionLayout.LayoutParams
                 if (lp.height == 0)
-                    lp.measureHeightSpec = getChildMeasureSpec(heightMeasureSpec, 0, f(g.vv, lp.divHeight, g.va))
+                    lp.measureHeightSpec = getChildMeasureSpec(heightMeasureSpec, 0, setVerticalMarginFromLayoutParam(f(g.vv, lp.divHeight, g.va),lp))
                 if (lp.measureCheck) {
                     c.measure(lp.measureWidthSpec, lp.measureHeightSpec)
                     lp.measureCheck = false
@@ -643,7 +648,7 @@ class DivisionLayout : ViewGroup {
                 val c = getChildAt(it)
                 val lp = c.layoutParams as DivisionLayout.LayoutParams
                 if (lp.width == 0)
-                    lp.measureWidthSpec = getChildMeasureSpec(widthMeasureSpec, 0, f(g.hv, lp.divWidth, g.ha))
+                    lp.measureWidthSpec = getChildMeasureSpec(widthMeasureSpec, 0, setHorizontalMarginFromLayoutParam(f(g.hv, lp.divWidth, g.ha),lp))
                 if (lp.measureCheck) {
                     c.measure(lp.measureWidthSpec, lp.measureHeightSpec)
                 } else
@@ -654,9 +659,16 @@ class DivisionLayout : ViewGroup {
             val c = getChildAt(it)
             val lp = c.layoutParams as DivisionLayout.LayoutParams
             lp.measureHeightSpec = when (lp.height) {
-                ViewGroup.LayoutParams.MATCH_PARENT -> getChildMeasureSpec(heightMeasureSpec, 0, contentsHeight)
-                0 -> getChildMeasureSpec(heightMeasureSpec, 0, f(contentsHeight, lp.divHeight, lp.divTop + lp.divHeight + lp.divBottom))
-                else -> getChildMeasureSpec(heightMeasureSpec, 0, lp.height)
+                ViewGroup.LayoutParams.WRAP_CONTENT -> {
+                    if(lp.wrapMeasureVertical == -1) {
+                        c.measure(0,getChildMeasureSpec(heightMeasureSpec, 0, lp.height))
+                        lp.wrapMeasureVertical = c.measuredHeight
+                    }
+                    getChildMeasureSpec(heightMeasureSpec,0,setVerticalMarginFromLayoutParam(lp.wrapMeasureVertical,lp))
+                }
+                ViewGroup.LayoutParams.MATCH_PARENT -> getChildMeasureSpec(heightMeasureSpec, 0, setVerticalMarginFromLayoutParam(contentsHeight,lp))
+                0 -> getChildMeasureSpec(heightMeasureSpec, 0, setVerticalMarginFromLayoutParam(f(contentsHeight, lp.divHeight, lp.topRatio + lp.divHeight + lp.bottomRatio),lp))
+                else -> getChildMeasureSpec(heightMeasureSpec, 0, setVerticalMarginFromLayoutParam(lp.height,lp))
             }
             if (lp.measureCheck) {
                 c.measure(lp.measureWidthSpec, lp.measureHeightSpec)
@@ -668,9 +680,16 @@ class DivisionLayout : ViewGroup {
             val c = getChildAt(it)
             val lp = c.layoutParams as DivisionLayout.LayoutParams
             lp.measureWidthSpec = when (lp.width) {
-                ViewGroup.LayoutParams.MATCH_PARENT -> getChildMeasureSpec(widthMeasureSpec, 0, contentsWidth)
-                0 -> getChildMeasureSpec(widthMeasureSpec, 0, f(contentsWidth, lp.divWidth, lp.divLeft + lp.divWidth + lp.divRight))
-                else -> getChildMeasureSpec(widthMeasureSpec, 0, lp.width)
+                ViewGroup.LayoutParams.WRAP_CONTENT -> {
+                    if(lp.wrapMeasureHorizontal == -1) {
+                        c.measure(getChildMeasureSpec(widthMeasureSpec,0,lp.width),0)
+                        lp.wrapMeasureHorizontal = c.measuredWidth
+                    }
+                    getChildMeasureSpec(widthMeasureSpec,0,setHorizontalMarginFromLayoutParam(lp.wrapMeasureHorizontal,lp))
+                }
+                ViewGroup.LayoutParams.MATCH_PARENT -> getChildMeasureSpec(widthMeasureSpec, 0, setHorizontalMarginFromLayoutParam(contentsWidth,lp))
+                0 -> getChildMeasureSpec(widthMeasureSpec, 0, setHorizontalMarginFromLayoutParam(f(contentsWidth, lp.divWidth, lp.leftRatio + lp.divWidth + lp.rightRatio),lp))
+                else -> getChildMeasureSpec(widthMeasureSpec, 0, setHorizontalMarginFromLayoutParam(lp.width,lp))
             }
             if (lp.measureCheck) {
                 c.measure(lp.measureWidthSpec, lp.measureHeightSpec)
@@ -872,6 +891,7 @@ class DivisionLayout : ViewGroup {
         var s = string
         s = s.toLowerCase()
         s = s.trim()
+        if(s.length <= 2) throw (DivisionLayoutException(DivisionLayoutException.E11))
         when(s.substring(s.length - 2)) {
             "dp" -> {
                 s = s.substring(0, s.length - 2)
@@ -907,7 +927,13 @@ class DivisionLayout : ViewGroup {
             lp.marginTop = f(height - lp.marginBottom,t,t + lp.divMarginHeightRatio)
         else if(b != null)
             lp.marginBottom = f(height - lp.marginTop,b,b + lp.divMarginHeightRatio)
-        return lp.marginTop + lp.marginBottom
+        var result = height - lp.marginTop - lp.marginBottom
+        if(result < 0) {
+            lp.marginTop = 0
+            lp.marginBottom = 0
+            result = 0
+        }
+        return result
     }
 
     private fun setHorizontalMarginFromLayoutParam(width : Int, lp : LayoutParams) : Int {
@@ -924,7 +950,13 @@ class DivisionLayout : ViewGroup {
             lp.marginStart = f(width - lp.marginEnd,l,l + lp.divMarginWidthRatio)
         else if(r != null)
             lp.marginEnd = f(width - lp.marginStart,r,r + lp.divMarginWidthRatio)
-        return lp.marginStart + lp.marginEnd
+        var result = width - lp.marginStart - lp.marginEnd
+        if(result < 0) {
+            lp.marginStart = 0
+            lp.marginEnd = 0
+            result = 0
+        }
+        return result
 
     }
 
@@ -938,11 +970,11 @@ class DivisionLayout : ViewGroup {
             val c = getChildAt(i)
             val lp = c.layoutParams as LayoutParams
             if(lp.verticalDivision == name) {
-                lp.divTop = 0F; lp.divHeight = 0F; lp.divBottom = 0F
+                lp.topRatio = 0F; lp.divHeight = 0F; lp.bottomRatio = 0F
                 if (lp.height > 0) result += lp.height
                 else if (lp.height == ViewGroup.LayoutParams.WRAP_CONTENT) {
                     c.measure(0, getChildMeasureSpec(heightMeasureSpec, 0, ViewGroup.LayoutParams.WRAP_CONTENT))
-                    result += c.measuredHeight
+                    result += c.measuredHeight + lp.topPx + lp.bottomPx
                     lp.wrapMeasureVertical = c.measuredHeight
                 }
             }
@@ -956,11 +988,11 @@ class DivisionLayout : ViewGroup {
             val c = getChildAt(i)
             val lp = c.layoutParams as LayoutParams
             if(lp.horizontalDivision == name) {
-                lp.divLeft = 0F; lp.divWidth = 0F; lp.divRight = 0F
+                lp.topRatio = 0F; lp.divWidth = 0F; lp.bottomRatio = 0F
                 if (lp.width > 0) result += lp.width
                 else if (lp.width == ViewGroup.LayoutParams.WRAP_CONTENT) {
                     c.measure(getChildMeasureSpec(widthMeasureSpec, 0, ViewGroup.LayoutParams.WRAP_CONTENT), 0)
-                    result += c.measuredWidth
+                    result += c.measuredWidth + lp.leftPx + lp.rightPx
                     lp.wrapMeasureHorizontal = c.measuredWidth
                 }
             }
@@ -1152,7 +1184,8 @@ class DivisionLayout : ViewGroup {
         companion object {
             const val DEFAULT_DIVISION = ""
             const val DEFAULT_ORDER = 0
-            const val DEFAULT_VALUE = 0F
+            internal const val DEFAULT_VALUE = 0F
+            internal const val DEFAULT_DP = "0dp"
         }
 
         var verticalDivision = DEFAULT_DIVISION
@@ -1161,16 +1194,16 @@ class DivisionLayout : ViewGroup {
         var horizontalOrder = DEFAULT_ORDER
         var divWidth = DEFAULT_VALUE
         var divHeight = DEFAULT_VALUE
-        var divTop = DEFAULT_VALUE
-        var divBottom = DEFAULT_VALUE
-        var divLeft = DEFAULT_VALUE
-        var divRight = DEFAULT_VALUE
-        var divMarginTop = ""
-        var divMarginBottom = ""
-        var divMarginHeightRatio = 0F
-        var divMarginStart = ""
-        var divMarginEnd = ""
-        var divMarginWidthRatio = 0F
+        var divTop = DEFAULT_DP
+        var divBottom = DEFAULT_DP
+        var divLeft = DEFAULT_DP
+        var divRight = DEFAULT_DP
+        var divMarginTop = DEFAULT_DP
+        var divMarginBottom = DEFAULT_DP
+        var divMarginHeightRatio = DEFAULT_VALUE
+        var divMarginStart = DEFAULT_DP
+        var divMarginEnd = DEFAULT_DP
+        var divMarginWidthRatio = DEFAULT_VALUE
         var marginTop = -1
         internal set
         var marginBottom = -1
@@ -1179,6 +1212,15 @@ class DivisionLayout : ViewGroup {
         internal set
         var marginEnd = -1
         internal set
+
+        internal var topRatio = DEFAULT_VALUE
+        internal var leftRatio = DEFAULT_VALUE
+        internal var rightRatio = DEFAULT_VALUE
+        internal var bottomRatio = DEFAULT_VALUE
+        internal var topPx = 0
+        internal var leftPx = 0
+        internal var rightPx = 0
+        internal var bottomPx = 0
 
         internal var measureCheck = false
         internal var measureWidthSpec = 0
@@ -1209,12 +1251,12 @@ class DivisionLayout : ViewGroup {
                     ta.getString(R.styleable.DivisionLayout_Layout_horizontal_div)?.let { div -> horizontalDivision = div }
                 }
             }
-            divWidth = ta.getFloat(R.styleable.DivisionLayout_Layout_div_member_width,DEFAULT_VALUE)
-            divHeight = ta.getFloat(R.styleable.DivisionLayout_Layout_div_member_height,DEFAULT_VALUE)
-            divTop = ta.getFloat(R.styleable.DivisionLayout_Layout_div_member_top,DEFAULT_VALUE)
-            divBottom = ta.getFloat(R.styleable.DivisionLayout_Layout_div_member_bottom,DEFAULT_VALUE)
-            divLeft = ta.getFloat(R.styleable.DivisionLayout_Layout_div_member_left,DEFAULT_VALUE)
-            divRight = ta.getFloat(R.styleable.DivisionLayout_Layout_div_member_right,DEFAULT_VALUE)
+            divWidth = ta.getFloat(R.styleable.DivisionLayout_Layout_div_width,DEFAULT_VALUE)
+            divHeight = ta.getFloat(R.styleable.DivisionLayout_Layout_div_height,DEFAULT_VALUE)
+            ta.getString(R.styleable.DivisionLayout_Layout_div_top)?.let { divTop = it }
+            ta.getString(R.styleable.DivisionLayout_Layout_div_bottom)?.let { divBottom = it }
+            ta.getString(R.styleable.DivisionLayout_Layout_div_left)?.let { divLeft = it }
+            ta.getString(R.styleable.DivisionLayout_Layout_div_right)?.let { divRight = it }
             verticalOrder = ta.getInt(R.styleable.DivisionLayout_Layout_vertical_div_order,DEFAULT_ORDER)
             horizontalOrder = ta.getInt(R.styleable.DivisionLayout_Layout_horizontal_div_order,DEFAULT_ORDER)
             ta.getString(R.styleable.DivisionLayout_Layout_div_marginTop)?.let { divMarginTop = it }

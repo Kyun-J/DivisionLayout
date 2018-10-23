@@ -7,14 +7,13 @@
 ## DivisionLayout은...
 서로 다른 해상도의 안드로이드 디바이스에서, 같은 비율로 View를 배치할 수 있는 Layout 라이브러리입니다.  
 top, height, bottom으로 구성된 세로 비율과 left, width, right로 구성된 가로 비율을 계산하여 View를 배치합니다.  
-Division을 사용하면, 자식 View들을 ViewGroup(Layout) 없이 묶어 배치할 수 있습니다.
-
+Division을 사용하면 자식 뷰들을 가로 혹은 세로로 정렬하여 배치할 수 있습니다.
 ## 특징
 1. ConstraintLayout의 percent나, LinearLayout의 weight 처럼 상대적인 비율로 뷰를 배치합니다.
-2. ViewGroup과 유사한 Division이라는 개념을 사용하여 자식 View들을 묶을 수 있습니다.  
+2. Division이라는 개념을 사용하여 자식 View들을 묶을 수 있습니다.  
 Division은 ViewGroup과 달리 ChildView로써 Parent에 종속되지 않고, 로직상으로만 구현이 되어 있습니다.
 
-자세한 사용 방법은 [Wiki](https://github.com/Kyun-J/division-layout/wiki)를 참고해 주세요.
+자세한 사용 방법은 [**Wiki**](https://github.com/Kyun-J/division-layout/wiki)를 참고해 주세요.
 
 ## What is this?
 Divisionlayout is the Layout library that allows to place views at the same rate in Android devices of different resolutions.  
@@ -38,19 +37,19 @@ This layout can be arranged by setting the proportions of left, top, right, bott
         android:text="Division_Layout"
         android:background="#fffc"
         android:gravity="center"
-        app:div_member_left="5"
-        app:div_member_top="1"
-        app:div_member_right="5"
-        app:div_member_bottom="0.5"
-        app:div_member_width="10"
-        app:div_member_height="1"/>
+        app:div_left="5"
+        app:div_top="1"
+        app:div_right="5"
+        app:div_bottom="0.5"
+        app:div_width="10"
+        app:div_height="1"/>
 </app.dvkyun.divisionlayout.DivisionLayout>
 ```
 The above xml is calculated by applying the ratio as shown in the figure below.
 
 <img src=imgs/example1.jpg width="384" height="640">
 
-Please refer to the [Wiki](https://github.com/Kyun-J/division-layout/wiki) for details.
+Please refer to the [**Wiki**](https://github.com/Kyun-J/division-layout/wiki) for details.
 
 ## ToDoNext
 - Implement margin and padding
