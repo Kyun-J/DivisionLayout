@@ -72,7 +72,7 @@ allprojects {
 Add the dependency:
 ```gradle
 dependencies {
-  implementation 'com.github.Kyun-J:division-layout:0.05'
+  implementation 'com.github.Kyun-J:DivisionLayout:0.05'
 }
 ```
 
