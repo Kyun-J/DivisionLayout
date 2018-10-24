@@ -13,14 +13,14 @@ Division을 사용하면 여러 자식 뷰들을 가로, 세로로 정렬하여 
 2. Division이라는 개념을 사용하여 자식 View들을 묶을 수 있습니다.  
 Division은 ViewGroup과 달리 ChildView로써 Parent에 종속되지 않고, 로직상으로만 구현이 되어 있습니다.
 
-자세한 사용 방법은 [**Wiki**](https://github.com/Kyun-J/division-layout/wiki)를 참고해 주세요.
+자세한 사용 방법은 [**Wiki**](https://github.com/Kyun-J/DivisionLayout/wiki)를 참고해 주세요.
 
 ## What is this?
 Divisionlayout is the Layout library that allows to place views at the same rate in Android devices of different resolutions.  
 Position the view by calculating the vertical ratio of top, height, and bottom and the horizontal ratio of left, width, and right.  
 With Division, you can placement child views without a ViewGroup(Layout).
 
-<img src=imgs/example1.png width="384" height="640">
+<img src=imgs/r-1.png>
 
 This layout can be arranged by setting the proportions of left, top, right, bottom, width, and height.
 
@@ -47,9 +47,9 @@ This layout can be arranged by setting the proportions of left, top, right, bott
 ```
 The above xml is calculated by applying the ratio as shown in the figure below.
 
-<img src=imgs/example1.jpg width="384" height="640">
+<img src=imgs/r-2.jpg>
 
-Please refer to the [**Wiki**](https://github.com/Kyun-J/division-layout/wiki) for details.
+Please refer to the [**Wiki**](https://github.com/Kyun-J/DivisionLayout/wiki) for details.
 
 ## ToDoNext
 - Make guildlines in android studio preview
@@ -72,7 +72,7 @@ allprojects {
 Add the dependency:
 ```gradle
 dependencies {
-  implementation 'com.github.Kyun-J:DivisionLayout:0.05'
+  implementation 'com.github.Kyun-J:DivisionLayout:0.0.5'
 }
 ```
 

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<app.dvkyun.divisionlayout.DivisionLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#fff"
+    app:create_division_1="n:tool, h:43, b:573"
+    app:create_division_2="n:main, t:tool.b, l:25, w:310, r:25">
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#28baff"
+        app:integrated_div="tool"/>
+    <View
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        app:integrated_div="tool"
+        android:background="#fff"
+        app:div_left="12"
+        app:div_width="10"
+        app:div_marginTop="12"
+        app:div_marginHeightRatio="19"
+        app:div_marginBottom="12"/>
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:text="logo"
+        android:gravity="center"
+        app:vertical_div="tool"
+        app:div_top="1"
+        app:div_height="5"
+        app:div_bottom="1"
+        app:div_left="1"
+        app:div_right="1"
+        app:div_width="1" />
+    <View
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        app:integrated_div="tool"
+        android:background="#fff"
+        app:div_left="297"
+        app:div_width="26"
+        app:div_right="15"
+        app:div_marginTop="12"
+        app:div_marginHeightRatio="19"
+        app:div_marginBottom="12"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="학교 입력 정보"
+        app:integrated_div="main"
+        app:div_top="32"/>
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:integrated_div="main"
+        app:div_height="38"/>
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:integrated_div="main"
+        app:div_height="38"/>
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:integrated_div="main"
+        app:div_height="38"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="*전공과 학번"
+        app:integrated_div="main" />
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="개인 입력 정보"
+        app:integrated_div="main"
+        app:div_top="34"/>
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:integrated_div="main"
+        app:div_height="38"/>
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:integrated_div="main"
+        app:div_height="38"/>
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:integrated_div="main"
+        app:div_height="38"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="약관"
+        app:integrated_div="main"
+        app:div_top="34"/>
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:integrated_div="main"
+        app:div_height="38" />
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:integrated_div="main"
+        app:div_height="38" />
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:text="회원가입"
+        app:integrated_div="main"
+        app:div_top="26"
+        app:div_height="38"
+        app:div_bottom="33"
+        app:div_marginStart="48"
+        app:div_marginWidthRatio="214"
+        app:div_marginEnd="48"/>
+</app.dvkyun.divisionlayout.DivisionLayout>

@@ -930,7 +930,7 @@ class DivisionLayout : ViewGroup {
         when(s.substring(s.length - 2)) {
             "dp" -> {
                 s = s.substring(0, s.length - 2)
-                s.toIntOrNull().let {
+                s.toFloatOrNull().let {
                     if (it == null)
                         throw (DivisionLayoutException(DivisionLayoutException.E11))
                     return (it * resources.displayMetrics.density).toInt()

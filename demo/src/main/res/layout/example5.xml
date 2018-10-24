@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<app.dvkyun.divisionlayout.DivisionLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:create_division_1="n:vertical, h:1, b:1"
+    app:create_division_2="n:horizontal, t:vertical.b">
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:text="1"
+        app:vertical_div="vertical"
+        app:div_height="1"/>
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:text="2"
+        app:vertical_div="vertical"
+        app:div_height="1"
+        app:vertical_div_order="2"/>
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:text="3"
+        app:vertical_div="vertical"
+        app:div_height="1"/>
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:text="4"
+        app:vertical_div="vertical"
+        app:div_height="1"
+        app:vertical_div_order="1"/>
+    <Button
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:text="5"
+        app:integrated_div="horizontal"
+        app:div_width="1"
+        app:horizontal_div_order="1"/>
+    <Button
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:text="6"
+        app:integrated_div="horizontal"
+        app:div_width="1"/>
+    <Button
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:text="7"
+        app:integrated_div="horizontal"
+        app:div_width="1"
+        app:horizontal_div_order="2"/>
+    <Button
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:text="8"
+        app:integrated_div="horizontal"
+        app:div_width="1"/>
+</app.dvkyun.divisionlayout.DivisionLayout>

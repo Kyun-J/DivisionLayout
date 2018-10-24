@@ -2,7 +2,6 @@
 <app.dvkyun.divisionlayout.DivisionLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:paddingTop="100dp"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <TextView
@@ -13,7 +12,5 @@
         android:background="#4f56"
         app:div_top="2"
         app:div_height="1"
-        app:div_bottom="200dp"
-        app:div_marginBottom="10dp"
-        app:div_marginTop="20dp" />
+        app:div_bottom="200dp" />
 </app.dvkyun.divisionlayout.DivisionLayout>

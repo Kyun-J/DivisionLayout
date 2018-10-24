@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<app.dvkyun.divisionlayout.DivisionLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:create_division_1="n:toolbar, h:wrap">
+    <Button
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="back"
+        app:integrated_div="toolbar"
+        app:div_width="3" />
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:text="Logo"
+        app:integrated_div="toolbar"
+        app:div_width="5" />
+    <Button
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="menu"
+        app:horizontal_div="toolbar"
+        app:div_width="3" />
+</app.dvkyun.divisionlayout.DivisionLayout>

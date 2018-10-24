@@ -34,13 +34,12 @@
 
     <Button
         android:layout_width="0dp"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:text="menu"
         app:div_left="1"
         app:div_right="0.1"
         app:div_width="1.5"
-        app:horizontal_div="toolbar"
-        app:vertical_div="toolbar" />
+        app:horizontal_div="toolbar" />
 
     <TextView
         android:layout_width="match_parent"
