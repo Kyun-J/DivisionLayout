@@ -53,6 +53,7 @@ Please refer to the [**Wiki**](https://github.com/Kyun-J/DivisionLayout/wiki) fo
 
 ## ToDoNext
 - Make guildlines in android studio preview
+- Apply to rtl mode
 - Added various functions in default_Division
 
 ## Requirements
@@ -72,7 +73,7 @@ allprojects {
 Add the dependency:
 ```gradle
 dependencies {
-  implementation 'com.github.Kyun-J:DivisionLayout:0.0.5'
+  implementation 'com.github.Kyun-J:DivisionLayout:0.0.6'
 }
 ```
 
