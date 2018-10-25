@@ -7,6 +7,9 @@
         <attr name="horizontal_div" format="string"/>
         <attr name="vertical_div_order" format="integer"/>
         <attr name="horizontal_div_order" format="integer"/>
+        <attr name="vertical_individual" format="boolean"/>
+        <attr name="horizontal_individual" format="boolean"/>
+        <attr name="integrated_individual" format="boolean"/>
         <attr name="div_width" format="float"/>
         <attr name="div_height" format="float"/>
         <attr name="div_left" format="float|dimension"/>
@@ -17,8 +20,8 @@
         <attr name="div_marginWidthRatio" format="float"/>
         <attr name="div_marginTop" format="float|dimension"/>
         <attr name="div_marginBottom" format="float|dimension"/>
-        <attr name="div_marginStart" format="float|dimension"/>
-        <attr name="div_marginEnd" format="float|dimension"/>
+        <attr name="div_marginLeft" format="float|dimension"/>
+        <attr name="div_marginRight" format="float|dimension"/>
     </declare-styleable>
 
     <declare-styleable name="DivisionLayout">

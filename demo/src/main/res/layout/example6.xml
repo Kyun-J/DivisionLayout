@@ -116,7 +116,7 @@
         app:div_top="26"
         app:div_height="38"
         app:div_bottom="33"
-        app:div_marginStart="48"
+        app:div_marginLeft="48"
         app:div_marginWidthRatio="214"
-        app:div_marginEnd="48"/>
+        app:div_marginRight="48"/>
 </app.dvkyun.divisionlayout.DivisionLayout>
