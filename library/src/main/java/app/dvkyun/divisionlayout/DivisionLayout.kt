@@ -1,6 +1,9 @@
 package app.dvkyun.divisionlayout
 
 import android.content.Context
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.Rect
 import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
@@ -30,8 +33,6 @@ class DivisionLayout : ViewGroup {
 
     private var verticalWrapMode = false
     private var horizontalWrapMode = false
-    private var verticalMatchMode = false
-    private var horizontalMatchMode = false
 
     private var contentsHeight = 0
     private var contentsWidth = 0
@@ -107,7 +108,7 @@ class DivisionLayout : ViewGroup {
     * */
     fun getAllDivision(): Collection<Division> {
         val ga = HashSet<Division>()
-        for (g in divisionList) {
+        divisionList.forEach { g ->
             if (g.key != LayoutParams.DEFAULT_DIVISION) {
                 val dg = Division(g.key)
                 dg.top = g.value.t
@@ -162,7 +163,7 @@ class DivisionLayout : ViewGroup {
     * */
     fun addDivisionList(list: Iterable<Division>) {
         try {
-            for (a in list) {
+            list.forEach { a ->
                 if (a.name != LayoutParams.DEFAULT_DIVISION) {
                     var f = -1
                     for (i in 0 until divisionJson.length()) {
@@ -229,7 +230,7 @@ class DivisionLayout : ViewGroup {
     fun setAllDivision(list: Iterable<Division>) {
         try {
             val gl = JSONArray()
-            for (a in list) {
+            list.forEach { a ->
                 if (a.name != LayoutParams.DEFAULT_DIVISION) {
                     val go = JSONObject()
                     go.put("name", a.name)
@@ -312,7 +313,7 @@ class DivisionLayout : ViewGroup {
     fun notifyDivisionChanged() {
         try {
             val gl = JSONArray()
-            for (a in calledDivision.values) {
+            calledDivision.values.forEach { a->
                 val go = JSONObject()
                 go.put("name", a.name)
                 go.put("top", a.top)
@@ -370,9 +371,32 @@ class DivisionLayout : ViewGroup {
         isAttach = false
     }
 
+    override fun onFocusChanged(gainFocus: Boolean, direction: Int, previouslyFocusedRect: Rect?) {
+        super.onFocusChanged(gainFocus, direction, previouslyFocusedRect)
+
+        if(isAttach && isInEditMode) {
+            canvas?.let { c ->
+                divisionList.values.forEach { d ->
+                    val p = Paint()
+                    p.color = -16711936
+
+                    c.drawLine(d.hf.toFloat(), d.vf.toFloat(), d.hf.toFloat(), d.vl.toFloat(), p)
+                    c.drawLine(d.hf.toFloat(), d.vf.toFloat(), d.hl.toFloat(), d.vf.toFloat(), p)
+                    c.drawLine(d.hf.toFloat(), d.vl.toFloat(), d.hl.toFloat(), d.vl.toFloat(), p)
+                    c.drawLine(d.hl.toFloat(), d.vf.toFloat(), d.hl.toFloat(), d.vl.toFloat(), p)
+                }
+            }
+        }
+    }
+
+    override fun dispatchDraw(canvas: Canvas?) {
+        super.dispatchDraw(canvas)
+
+    }
+
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         if(isAttach) {
-            for (g in divisionList.values) g.reset()
+            divisionList.values.forEach { it.reset() }
             defaultVerticalDivision.clear()
             defaultHorizontalDivision.clear()
             for(i in 0 until childCount) {
@@ -503,7 +527,7 @@ class DivisionLayout : ViewGroup {
     }
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
-        for (g in divisionList.values) {
+        divisionList.values.forEach { g ->
             var lv = g.vf
             g.verticalList.forEach {
                 val c = getChildAt(it)
@@ -663,15 +687,15 @@ class DivisionLayout : ViewGroup {
             it.value.hl += paddingStart
         }
 
-        for (g in divisionList.values) {
-            for (l in g.verticalOrderList) {
+        divisionList.values.forEach { g ->
+            g.verticalOrderList.forEach { l ->
                 if (l.key - 1 > g.verticalList.size)
                     throw(DivisionLayoutException(DivisionLayoutException.E4))
                 l.value.forEach {
                     g.verticalList.add(l.key - 1, it)
                 }
             }
-            for (l in g.horizontalOrderList) {
+            g.horizontalOrderList.forEach { l ->
                 if (l.key - 1 > g.horizontalList.size)
                     throw(DivisionLayoutException(DivisionLayoutException.E4))
                 l.value.forEach {
