@@ -1,9 +1,6 @@
 package app.dvkyun.divisionlayout
 
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Paint
-import android.graphics.Rect
 import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
@@ -369,29 +366,6 @@ class DivisionLayout : ViewGroup {
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
         isAttach = false
-    }
-
-    override fun onFocusChanged(gainFocus: Boolean, direction: Int, previouslyFocusedRect: Rect?) {
-        super.onFocusChanged(gainFocus, direction, previouslyFocusedRect)
-
-        if(isAttach && isInEditMode) {
-            canvas?.let { c ->
-                divisionList.values.forEach { d ->
-                    val p = Paint()
-                    p.color = -16711936
-
-                    c.drawLine(d.hf.toFloat(), d.vf.toFloat(), d.hf.toFloat(), d.vl.toFloat(), p)
-                    c.drawLine(d.hf.toFloat(), d.vf.toFloat(), d.hl.toFloat(), d.vf.toFloat(), p)
-                    c.drawLine(d.hf.toFloat(), d.vl.toFloat(), d.hl.toFloat(), d.vl.toFloat(), p)
-                    c.drawLine(d.hl.toFloat(), d.vf.toFloat(), d.hl.toFloat(), d.vl.toFloat(), p)
-                }
-            }
-        }
-    }
-
-    override fun dispatchDraw(canvas: Canvas?) {
-        super.dispatchDraw(canvas)
-
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -971,24 +945,29 @@ class DivisionLayout : ViewGroup {
         s = s.toLowerCase()
         s = s.trim()
         if(s.length <= 2) throw (DivisionLayoutException(DivisionLayoutException.E11))
-        when(s.substring(s.length - 2)) {
-            "dp" -> {
-                s = s.substring(0, s.length - 2)
-                s.toFloatOrNull().let {
-                    if (it == null)
-                        throw (DivisionLayoutException(DivisionLayoutException.E11))
-                    return (it * resources.displayMetrics.density).toInt()
-                }
+        if(s.substring(s.length - 2) == "dp") {
+            s = s.substring(0, s.length - 2)
+            s.toFloatOrNull().let {
+                if (it == null)
+                    throw (DivisionLayoutException(DivisionLayoutException.E11))
+                return (it * resources.displayMetrics.density).toInt()
             }
-            "px" -> {
-                s = s.substring(0, s.length - 2)
-                s.toIntOrNull().let {
-                    if (it == null)
-                        throw (DivisionLayoutException(DivisionLayoutException.E11))
-                    return it
-                }
+        } else if(s.substring(s.length - 3) == "dip") {
+            s = s.substring(0, s.length - 3)
+            s.toFloatOrNull().let {
+                if (it == null)
+                    throw (DivisionLayoutException(DivisionLayoutException.E11))
+                return (it * resources.displayMetrics.density).toInt()
             }
-            else -> throw (DivisionLayoutException(DivisionLayoutException.E11))
+        } else if(s.substring(s.length - 2) == "px") {
+            s = s.substring(0, s.length - 2)
+            s.toIntOrNull().let {
+                if (it == null)
+                    throw (DivisionLayoutException(DivisionLayoutException.E11))
+                return it
+            }
+        } else {
+            throw (DivisionLayoutException(DivisionLayoutException.E11))
         }
     }
 

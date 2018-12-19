@@ -1,18 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<app.dvkyun.divisionlayout.DivisionLayout
+<layout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    app:create_division_1="n:div, l:2, w:5, r:1.8">
-
-    <TextView
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <app.dvkyun.divisionlayout.DivisionLayout
+        android:id="@+id/container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="div"
-        android:gravity="center"
-        android:textSize="30sp"
-        android:background="#ffff80"
-        app:integrated_div="div"/>
+        android:layout_height="match_parent">
 
-</app.dvkyun.divisionlayout.DivisionLayout>
+        <android.support.v7.widget.Toolbar
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorAccent"
+            app:vertical_div="main"/>
+
+        <TextView
+            android:id="@+id/message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:vertical_div="main"
+            app:div_top="16dp"
+            app:div_left="16dp"/>
+
+        <android.support.design.widget.BottomNavigationView
+            android:id="@+id/navigation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?android:attr/windowBackground"
+            app:vertical_div="main"
+            app:div_top="1"/>
+
+    </app.dvkyun.divisionlayout.DivisionLayout>
+</layout>
